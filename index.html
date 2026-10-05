@@ -33,19 +33,35 @@
             border-radius: 8px;
             font-size: 16px;
             cursor: pointer;
-            margin-top: 20px;
+            margin-top: 15px;
+            width: 200px;
+        }
+        .btn-ad {
+            background-color: #34c759;
         }
     </style>
 </head>
 <body>
 
     <h1>Welcome to My Mini App</h1>
-    <p>আপনার টেলিগ্রাম মিনি অ্যাপ সফলভাবে চালু হয়েছে!</p>
+    <p>আপনার টেলিগ্রাম মিনি অ্যাপ চালু হয়েছে!</p>
+
+    <!-- বিজ্ঞাপন দেখার বাটন -->
+    <button class="btn btn-ad" onclick="show_11962597()">Watch Ad 🎁</button>
+
+    <br>
     <button class="btn" onclick="Telegram.WebApp.close()">Close App</button>
 
     <script>
         Telegram.WebApp.ready();
         Telegram.WebApp.expand();
+
+        // অ্যাপ ওপেন হওয়ার সাথে সাথেই বিজ্ঞাপন কল করার জন্য
+        window.onload = function() {
+            if (typeof show_11962597 === 'function') {
+                show_11962597();
+            }
+        };
     </script>
 </body>
 </html>
