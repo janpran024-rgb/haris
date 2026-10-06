@@ -6,7 +6,7 @@
     <title>Earn Money Mini App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
-    <!-- Monetag Official Script -->
+    <!-- Monetag Official Tag Script Zone: 11962597 -->
     <script src="https://alwingulla.com/88/tag.min.js" data-zone="11962597" async data-cfasync="false"></script>
 
     <style>
@@ -23,29 +23,32 @@
         .btn-refer { background: #238636; }
         input, select { width: 100%; padding: 10px; margin-top: 8px; border-radius: 6px; border: 1px solid #30363d; background: #0d1117; color: #fff; box-sizing: border-box; }
         
-        /* Clean Timer Screen Overlay */
-        #timer-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(13, 17, 23, 0.95); z-index: 99999; flex-direction: column; justify-content: space-between; padding: 20px; box-sizing: border-box; text-align: center; }
-        .timer-badge { background: #1f6feb; color: white; padding: 6px 16px; border-radius: 20px; font-size: 16px; font-weight: bold; display: inline-block; margin-top: 10px; }
-        .timer-info { margin-top: auto; margin-bottom: auto; }
-        .monetag-tag { font-size: 12px; color: #8b949e; margin-bottom: 8px; }
+        /* Telegram Native Ad Style (Matches Screenshot) */
+        #ad-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f1721; z-index: 99999; flex-direction: column; justify-content: space-between; padding: 15px; box-sizing: border-box; }
+        .ad-top-bar { text-align: center; }
+        .timer-badge { background: rgba(255, 255, 255, 0.15); padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 14px; display: inline-block; }
+        .ad-body { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 15px 0; border-radius: 12px; overflow: hidden; background: #17212b; position: relative; }
+        #ad-frame { width: 100%; height: 100%; border: none; min-height: 280px; }
+        .ad-footer { text-align: center; }
+        .monetag-label { font-size: 12px; color: #7f8c8d; margin-bottom: 8px; display: block; }
     </style>
 </head>
 <body>
 
-    <!-- Timer Overlay Screen -->
-    <div id="timer-screen">
-        <div>
-            <div class="timer-badge">⏳ <span id="timer-text">00:15</span></div>
+    <!-- Native Telegram Ad Popup -->
+    <div id="ad-modal">
+        <div class="ad-top-bar">
+            <div class="timer-badge">⏳ <span id="ad-timer">00:15</span></div>
         </div>
 
-        <div class="timer-info">
-            <h2 style="margin-bottom: 5px;">বিজ্ঞাপনটি দেখা হচ্ছে...</h2>
-            <p style="color: #8b949e; font-size: 14px;">রিওয়ার্ড পেতে ১৫ সেকেন্ড অপেক্ষা করুন</p>
+        <div class="ad-body" id="ad-container">
+            <!-- Monetag Real Ad Frame -->
+            <iframe id="ad-frame" src="about:blank"></iframe>
         </div>
 
-        <div>
-            <div class="monetag-tag">ads by Monetag</div>
-            <button class="btn btn-ad" id="close-ad-btn" disabled onclick="completeAdProcess()">অপেক্ষা করুন...</button>
+        <div class="ad-footer">
+            <span class="monetag-label">ads by Monetag</span>
+            <button class="btn btn-ad" id="continue-btn" disabled onclick="finishAd()">Continue</button>
         </div>
     </div>
 
@@ -60,40 +63,40 @@
 
     <!-- Ad Section -->
     <div class="card reward-box">
-        <div>প্রতি অ্যাড-এ নিশ্চিত আয়</div>
+        <div>Proti ad-e nishchit ay</div>
         <h1 style="margin: 8px 0;">৳ <span id="ad-reward-display">1.00</span></h1>
         
         <div class="stats-grid">
             <div class="stat-item">
-                <small>আজকের অ্যাড দেখা</small>
-                <div style="font-size: 18px; font-weight: bold;"><span id="ads-watched">0</span> টি</div>
+                <small>Ajker ad dekha</small>
+                <div style="font-size: 18px; font-weight: bold;"><span id="ads-watched">0</span> ti</div>
             </div>
             <div class="stat-item">
-                <small>আজকের মোট আয়</small>
+                <small>Ajker ad ay</small>
                 <div style="font-size: 18px; font-weight: bold;">৳ <span id="today-earned">0.00</span></div>
             </div>
         </div>
 
-        <button class="btn btn-ad" id="start-ad-btn" onclick="watchAd()">▶ অ্যাড শুরু করুন (<span id="ads-remaining">10</span> টি বাকি)</button>
+        <button class="btn btn-ad" id="start-ad-btn" onclick="watchAd()">▶ Ad shuru korun (<span id="ads-remaining">10</span> ti baki)</button>
     </div>
 
     <!-- Referral Section -->
     <div class="card">
-        <h3>🎁 রেফারেল বোনাস</h3>
-        <p style="font-size: 14px; color: #8b949e; margin-top: 5px;">বন্ধুদের ইনভাইট করুন এবং প্রতি রেফারে বোনাস পান!</p>
-        <button class="btn btn-refer" onclick="shareReferral()">🔗 রেফার লিংক শেয়ার করুন</button>
+        <h3>🎁 Referral Bonus</h3>
+        <p style="font-size: 14px; color: #8b949e; margin-top: 5px;">Bondhuder invite korun ebong proti refer-e bonus pan!</p>
+        <button class="btn btn-refer" onclick="shareReferral()">🔗 Refer link share korun</button>
     </div>
 
     <!-- Withdraw Section -->
     <div class="card">
-        <h3>💳 টাকা তুলুন (Withdraw)</h3>
+        <h3>💳 Taka tulun (Withdraw)</h3>
         <select id="method">
             <option value="bkash">bKash</option>
             <option value="nagad">Nagad</option>
         </select>
-        <input type="text" id="phone" placeholder="মোবাইল নম্বর">
-        <input type="number" id="amount" placeholder="টাকার পরিমাণ">
-        <button class="btn btn-submit" onclick="submitWithdraw()">Withdraw সাবমিট করুন</button>
+        <input type="text" id="phone" placeholder="Mobile number">
+        <input type="number" id="amount" placeholder="Takar poriman">
+        <button class="btn btn-submit" onclick="submitWithdraw()">Withdraw submit korun</button>
     </div>
 
     <script>
@@ -126,7 +129,7 @@
                 }
             } catch(e) {}
             document.getElementById('ad-reward-display').innerText = adReward.toFixed(2);
-            document.getElementById('amount').placeholder = `টাকার পরিমাণ (Minimum ৳${minWithdraw})`;
+            document.getElementById('amount').placeholder = `Takar poriman (Minimum ৳${minWithdraw})`;
             updateUI();
         }
 
@@ -153,42 +156,45 @@
 
         function watchAd() {
             if (adsWatched >= totalAds) {
-                alert("আজকের সব অ্যাড দেখা শেষ!");
+                alert("Ajker shob ad dekha shesh!");
                 return;
             }
 
-            // Trigger Monetag In-App Script if loaded
+            // Trigger Monetag Official SDK
             if (typeof show_11962597 === 'function') {
                 show_11962597().catch(() => {});
             }
 
-            // Show clean Timer screen
-            document.getElementById('timer-screen').style.display = 'flex';
-            runTimer();
+            // Load Direct Monetag Ad inside Iframe for real banner
+            document.getElementById('ad-frame').src = "https://omg10.com/4/11964704";
+            document.getElementById('ad-modal').style.display = 'flex';
+            
+            startAdTimer();
         }
 
-        function runTimer() {
+        function startAdTimer() {
             let timeLeft = 15;
-            const timerText = document.getElementById('timer-text');
-            const closeBtn = document.getElementById('close-ad-btn');
+            const timerEl = document.getElementById('ad-timer');
+            const continueBtn = document.getElementById('continue-btn');
 
-            closeBtn.disabled = true;
-            closeBtn.innerText = "অপেক্ষা করুন...";
+            continueBtn.disabled = true;
+            continueBtn.innerText = "Wait for timer...";
 
-            const countdown = setInterval(() => {
+            const interval = setInterval(() => {
                 timeLeft--;
-                timerText.innerText = `00:${timeLeft < 10 ? '0' : ''}${timeLeft}`;
+                timerEl.innerText = `00:${timeLeft < 10 ? '0' : ''}${timeLeft}`;
 
                 if (timeLeft <= 0) {
-                    clearInterval(countdown);
-                    closeBtn.disabled = false;
-                    closeBtn.innerText = "রিওয়ার্ড নিন (Continue)";
+                    clearInterval(interval);
+                    continueBtn.disabled = false;
+                    continueBtn.innerText = "Continue";
                 }
             }, 1000);
         }
 
-        function completeAdProcess() {
-            document.getElementById('timer-screen').style.display = 'none';
+        function finishAd() {
+            document.getElementById('ad-modal').style.display = 'none';
+            document.getElementById('ad-frame').src = "about:blank";
             rewardUser();
         }
 
@@ -208,12 +214,12 @@
                     todayEarned: todayEarned
                 })
             });
-            alert(`অভিনন্দন! আপনি ৳${adReward} পেয়েছেন।`);
+            alert(`Abhinandan! Apni ৳${adReward} peyechen.`);
         }
 
         function shareReferral() {
             const refLink = `https://t.me/${BOT_USERNAME}?start=${user.id}`;
-            const shareText = `আমার সাথে Task-to-Earn অ্যাপে কাজ করে টাকা আয় করুন! লিংক: ${refLink}`;
+            const shareText = `Amar shathe Task-to-Earn app-e kaj kore taka ay korun! Link: ${refLink}`;
             tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(shareText)}`);
         }
 
@@ -223,15 +229,15 @@
             const amount = parseFloat(document.getElementById('amount').value);
 
             if(!phone || !amount) {
-                alert("সব ঘর ঠিকভাবে পূরণ করুন!");
+                alert("Shob ghor thikbhabe puron korun!");
                 return;
             }
             if(amount < minWithdraw) {
-                alert(`Minimum ৳${minWithdraw} withdraw করতে পারবেন!`);
+                alert(`Minimum ৳${minWithdraw} withdraw korte parben!`);
                 return;
             }
             if(amount > balance) {
-                alert("আপনার পর্যাপ্ত ব্যালেন্স নেই!");
+                alert("Apnar porjapto balance nei!");
                 return;
             }
 
@@ -255,7 +261,7 @@
                 })
             });
 
-            alert("Withdraw Request জমা হয়েছে!");
+            alert("Withdraw request jama hoyeche!");
         }
 
         loadSettings();
