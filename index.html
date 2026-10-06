@@ -168,12 +168,21 @@
 
         async function loadUserData() {
             try {
+                // Fetch User Data
                 const res = await fetch(`${DB_URL}/users/${user.id}.json`);
                 const data = await res.json();
                 if(data) {
                     balance = data.balance || 0;
                     adsWatched = data.adsWatched || 0;
                     todayEarned = data.todayEarned || 0;
+                }
+
+                // Fetch Dynamic Settings from Firebase
+                const settingsRes = await fetch(`${DB_URL}/settings.json`);
+                const settingsData = await settingsRes.json();
+                if(settingsData) {
+                    if(settingsData.adReward !== undefined) adReward = Number(settingsData.adReward);
+                    if(settingsData.totalAds !== undefined) totalAds = Number(settingsData.totalAds);
                 }
             } catch(e) {}
             updateUI();
