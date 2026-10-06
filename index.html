@@ -3,143 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hafi Mini App</title>
+    <title>Earn Money Mini App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src='//libtl.com/sdk.js' data-zone='11962597' data-sdk='show_11962597'></script>
-
+    <script src="https://alwingulla.com/88/tag.min.js" data-zone="118218" async data-cfasync="false"></script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-        body { background-color: #0b1526; color: #fff; padding: 15px; }
-        .card { background: #132238; border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid #1e324d; }
-        .header { display: flex; justify-content: space-between; align-items: center; }
-        .main-card { background: linear-gradient(135deg, #0072ff, #00c6ff); text-align: center; border: none; }
-        .amount { font-size: 30px; font-weight: bold; margin: 10px 0; }
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 15px; }
-        .btn-start { background: #fff; color: #0072ff; }
-        .btn-withdraw { background: #28a745; color: white; }
-        input, select { width: 100%; padding: 10px; margin-top: 8px; border-radius: 6px; border: 1px solid #2b4c7e; background: #0b1526; color: white; }
+        body { font-family: 'Arial', sans-serif; background-color: #0d1117; color: #fff; margin: 0; padding: 15px; }
+        .card { background: #161b22; border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid #30363d; }
+        .user-info { display: flex; align-items: center; gap: 10px; font-weight: bold; }
+        .avatar { width: 40px; height: 40px; background: #1f6feb; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .reward-box { background: linear-gradient(135deg, #0088cc, #005588); text-align: center; border-radius: 12px; padding: 15px; }
+        .stats-grid { display: flex; gap: 10px; margin: 15px 0; }
+        .stat-item { flex: 1; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; text-align: center; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; color: #fff; margin-top: 10px; }
+        .btn-ad { background: #ffffff; color: #0088cc; }
+        .btn-submit { background: #238636; }
+        input, select { width: 100%; padding: 10px; margin-top: 8px; border-radius: 6px; border: 1px solid #30363d; background: #0d1117; color: #fff; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
-    <div class="card header">
+    <!-- ইউজার প্রোফাইল -->
+    <div class="card user-info">
+        <div class="avatar" id="avatar">U</div>
         <div>
-            <h4 id="user-name">Loading...</h4>
-            <span id="user-balance" style="color: #4db8ff;">৳ 0.00</span>
+            <div id="user-name">User Name</div>
+            <div style="color: #58a6ff;">৳ <span id="user-balance">0.00</span></div>
         </div>
     </div>
 
-    <!-- Ad Task -->
-    <div class="card main-card">
-        <h3>বিজ্ঞাপন দেখে আয় করুন</h3>
-        <div class="amount" id="reward-text">৳ 20.00</div>
-        <button class="btn btn-start" id="start-btn" onclick="handleAdClick()">▶ বিজ্ঞাপন শুরু করুন</button>
+    <!-- বিজ্ঞাপন সেকশন -->
+    <div class="card reward-box">
+        <div>প্রতি বিজ্ঞাপনে নিশ্চিত আয়</div>
+        <h1 style="margin: 8px 0;">৳ <span id="ad-reward-display">1.00</span></h1>
+        
+        <div class="stats-grid">
+            <div class="stat-item">
+                <small>আজকের বিজ্ঞাপন দেখা</small>
+                <div style="font-size: 18px; font-weight: bold;"><span id="ads-watched">0</span> টি</div>
+            </div>
+            <div class="stat-item">
+                <small>আজকের বিজ্ঞাপন আয়</small>
+                <div style="font-size: 18px; font-weight: bold;">৳ <span id="today-earned">0.00</span></div>
+            </div>
+        </div>
+
+        <button class="btn btn-ad" onclick="watchAd()">▶ বিজ্ঞাপন শুরু করুন (<span id="ads-remaining">10</span> টি বাকি)</button>
     </div>
 
-    <!-- Withdrawal Form -->
+    <!-- উইথড্র সেকশন -->
     <div class="card">
-        <h4>💳 টাকা তুলুন (Withdraw)</h4>
+        <h3>💳 টাকা তুলুন (Withdraw)</h3>
         <select id="method">
             <option value="bkash">বিকাশ (bKash)</option>
             <option value="nagad">নগদ (Nagad)</option>
         </select>
-        <input type="number" id="phone" placeholder="মোবাইল নম্বর">
-        <input type="number" id="withdraw-amount" placeholder="টাকার পরিমাণ (নূন্যতম ৳১০০)">
-        <button class="btn btn-withdraw" onclick="submitWithdrawal()">উইথড্র সাবমিট করুন</button>
+        <input type="text" id="phone" placeholder="মোবাইল নম্বর">
+        <input type="number" id="amount" placeholder="টাকার পরিমাণ">
+        <button class="btn btn-submit" onclick="submitWithdraw()">উইথড্র সাবমিট করুন</button>
     </div>
 
     <script>
-        const DB_URL = "https://hafi-hiba-default-rtdb.firebaseio.com/";
         const tg = window.Telegram.WebApp;
-        tg.ready();
         tg.expand();
 
-        let userId = tg.initDataUnsafe?.user?.id || "test_user";
-        let userName = tg.initDataUnsafe?.user?.first_name || "User";
+        const DB_URL = "https://hafi-hiba-default-rtdb.firebaseio.com/";
+        const user = tg.initDataUnsafe.user || { id: "123456", first_name: "Demo User" };
 
-        document.getElementById('user-name').innerText = userName;
+        document.getElementById('user-name').innerText = user.first_name;
+        document.getElementById('avatar').innerText = user.first_name.charAt(0);
 
-        let userBalance = 0;
-        let rewardPerAd = 20;
+        let balance = 0;
+        let adsWatched = 0;
+        let todayEarned = 0;
+        let adReward = 1;
+        let totalAds = 10;
+        let minWithdraw = 50;
 
-        // Fetch User Data from Firebase
-        function loadUserData() {
-            fetch(`${DB_URL}/users/${userId}.json`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data) {
-                        userBalance = data.balance || 0;
-                    } else {
-                        // New user initialization
-                        fetch(`${DB_URL}/users/${userId}.json`, {
-                            method: 'PUT',
-                            body: JSON.stringify({ name: userName, balance: 0 })
-                        });
-                    }
-                    document.getElementById('user-balance').innerText = '৳ ' + userBalance.toFixed(2);
-                });
+        // 1. সেটিং ডাটা লোড
+        async function loadSettings() {
+            try {
+                const res = await fetch(`${DB_URL}/settings.json`);
+                const data = await res.json();
+                if(data) {
+                    adReward = data.ad_reward || 1;
+                    totalAds = data.total_ads || 10;
+                    minWithdraw = data.min_withdraw || 50;
+                }
+            } catch(e) {}
+            document.getElementById('ad-reward-display').innerText = adReward.toFixed(2);
+            document.getElementById('amount').placeholder = `টাকার পরিমাণ (নূন্যতম ৳${minWithdraw})`;
+            updateUI();
         }
 
-        loadUserData();
+        // 2. ইউজার ডাটা লোড
+        async function loadUserData() {
+            try {
+                const res = await fetch(`${DB_URL}/users/${user.id}.json`);
+                const data = await res.json();
+                if(data) {
+                    balance = data.balance || 0;
+                    adsWatched = data.adsWatched || 0;
+                    todayEarned = data.todayEarned || 0;
+                }
+            } catch(e) {}
+            updateUI();
+        }
 
-        function handleAdClick() {
-            if (typeof show_11962597 === 'function') {
-                show_11962597().then(() => rewardUser()).catch(() => rewardUser());
+        function updateUI() {
+            document.getElementById('user-balance').innerText = balance.toFixed(2);
+            document.getElementById('ads-watched').innerText = adsWatched;
+            document.getElementById('today-earned').innerText = todayEarned.toFixed(2);
+            let remaining = totalAds - adsWatched;
+            document.getElementById('ads-remaining').innerText = remaining > 0 ? remaining : 0;
+        }
+
+        // 3. অ্যাড দেখার ফাংশন
+        function watchAd() {
+            if (adsWatched >= totalAds) {
+                alert("আজকের সকল বিজ্ঞাপনের সীমা শেষ!");
+                return;
+            }
+
+            if (typeof show_881218 === 'function') {
+                show_881218().then(() => {
+                    rewardUser();
+                });
             } else {
-                rewardUser();
+                rewardUser(); // টেস্ট বা এড ব্লক থাকলে সরাসরি রিওয়ার্ড
             }
         }
 
-        function rewardUser() {
-            userBalance += rewardPerAd;
-            document.getElementById('user-balance').innerText = '৳ ' + userBalance.toFixed(2);
+        async function rewardUser() {
+            balance += adReward;
+            todayEarned += adReward;
+            adsWatched += 1;
 
-            // Update Firebase
-            fetch(`${DB_URL}/users/${userId}/balance.json`, {
-                method: 'PUT',
-                body: JSON.stringify(userBalance)
+            updateUI();
+
+            await fetch(`${DB_URL}/users/${user.id}.json`, {
+                method: 'PATCH',
+                body: JSON.stringify({
+                    name: user.first_name,
+                    balance: balance,
+                    adsWatched: adsWatched,
+                    todayEarned: todayEarned
+                })
             });
-
-            alert(`অভিনন্দন! ৳${rewardPerAd} যোগ করা হয়েছে।`);
+            alert(`অভিনন্দন! আপনি ৳${adReward} অর্জন করেছেন।`);
         }
 
-        function submitWithdrawal() {
+        // 4. উইথড্র রিকোয়েস্ট
+        async function submitWithdraw() {
             const method = document.getElementById('method').value;
             const phone = document.getElementById('phone').value;
-            const amount = parseFloat(document.getElementById('withdraw-amount').value);
+            const amount = parseFloat(document.getElementById('amount').value);
 
-            if (!phone || isNaN(amount) || amount < 100) {
-                alert('সঠিক নম্বর এবং নূন্যতম ১০০ টাকা লিখুন!');
+            if(!phone || !amount) {
+                alert("সবগুলো ঘর সঠিকভাবে পূরণ করুন!");
+                return;
+            }
+            if(amount < minWithdraw) {
+                alert(`সর্বনিম্ন ৳${minWithdraw} উইথড্র করতে পারবেন!`);
+                return;
+            }
+            if(amount > balance) {
+                alert("আপনার পর্যাপ্ত ব্যালেন্স নেই!");
                 return;
             }
 
-            if (amount > userBalance) {
-                alert('আপনার পর্যাপ্ত ব্যালেন্স নেই!');
-                return;
-            }
+            balance -= amount;
+            updateUI();
 
-            // Deduct balance and create request
-            userBalance -= amount;
-            fetch(`${DB_URL}/users/${userId}/balance.json`, { method: 'PUT', body: JSON.stringify(userBalance) });
-
-            const reqData = {
-                userId: userId,
-                name: userName,
-                method: method,
-                phone: phone,
-                amount: amount,
-                status: "Pending"
-            };
-
-            fetch(`${DB_URL}/withdrawals.json`, {
-                method: 'POST',
-                body: JSON.stringify(reqData)
-            }).then(() => {
-                alert('উইথড্র রিকোয়েস্ট সফলভাবে পাঠানো হয়েছে!');
-                loadUserData();
+            await fetch(`${DB_URL}/users/${user.id}.json`, {
+                method: 'PATCH',
+                body: JSON.stringify({ balance: balance })
             });
+
+            await fetch(`${DB_URL}/withdrawals.json`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    userId: user.id,
+                    name: user.first_name,
+                    method: method,
+                    phone: phone,
+                    amount: amount,
+                    status: "Pending"
+                })
+            });
+
+            alert("উইথড্র রিকোয়েস্ট সফলভাবে জমা হয়েছে!");
         }
+
+        loadSettings();
+        loadUserData();
     </script>
 </body>
 </html>
