@@ -2,66 +2,634 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Mini App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Community Work</title>
+    
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
+    
     <!-- Monetag SDK -->
     <script src='//libtl.com/sdk.js' data-zone='11962597' data-sdk='show_11962597'></script>
 
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #1c1c1e;
+            background: linear-gradient(180deg, #071527 0%, #0c1f38 100%);
             color: #ffffff;
+            min-height: 100vh;
+            padding-bottom: 75px;
+            overflow-x: hidden;
+        }
+
+        /* Top Header */
+        .header {
+            background: rgba(13, 27, 46, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar-box {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0088cc, #005588);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            border: 2px solid #38ef7d;
+            box-shadow: 0 0 10px rgba(56, 239, 125, 0.3);
+            overflow: hidden;
+        }
+
+        .avatar-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-info-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .verified-badge {
+            color: #38ef7d;
+            font-size: 12px;
+        }
+
+        .user-balance-text {
+            font-size: 13px;
+            color: #38ef7d;
+            font-weight: 600;
+        }
+
+        .live-payout-toast {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 20px;
+            padding: 4px 10px;
+            font-size: 10px;
+            color: #34d399;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+
+        /* Container & Cards */
+        .container {
+            padding: 16px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: #112238;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero-banner {
+            width: 100%;
+            border-radius: 14px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Earning Card */
+        .income-card {
+            background: linear-gradient(135deg, #0052d4, #4364f7, #6fb1fc);
+            border: none;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .income-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .income-title {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-bottom: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .income-amount {
+            font-size: 34px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(5px);
+            padding: 12px 8px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-card span {
+            font-size: 11px;
+            display: block;
+            opacity: 0.85;
+            margin-bottom: 4px;
+        }
+
+        .stat-card strong {
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        /* Buttons */
+        .btn-main {
+            width: 100%;
+            background: #ffffff;
+            color: #0052d4;
+            font-size: 15px;
+            font-weight: 700;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-main:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: #fff;
+        }
+
+        .btn-blue {
+            background: linear-gradient(135deg, #0088cc, #005588);
+            color: #fff;
+        }
+
+        /* Task Items */
+        .task-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #182e4a;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+
+        .task-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .task-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .icon-youtube { background: rgba(255, 0, 0, 0.15); color: #ff4747; }
+        .icon-telegram { background: rgba(0, 136, 204, 0.15); color: #0088cc; }
+
+        .task-details h4 {
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .task-details span {
+            font-size: 12px;
+            color: #38ef7d;
+            font-weight: 600;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 12px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            background: #0088cc;
+            color: white;
+        }
+
+        /* Input Copy Box */
+        .copy-box {
+            display: flex;
+            background: #0d1b2e;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 4px;
+            margin-top: 10px;
+        }
+
+        .copy-box input {
+            background: transparent;
+            border: none;
+            color: #aaa;
+            padding: 8px 10px;
+            width: 100%;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .copy-btn {
+            background: #182e4a;
+            color: #fff;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            color: #8a99ad;
+            margin-bottom: 6px;
+        }
+
+        .form-control {
+            width: 100%;
+            background: #0d1b2e;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .form-control:focus {
+            border-color: #0088cc;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(13, 27, 46, 0.98);
+            backdrop-filter: blur(12px);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            z-index: 1000;
+        }
+
+        .nav-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            text-align: center;
-        }
-        h1 { color: #0088cc; font-size: 24px; }
-        p { font-size: 16px; color: #aaaaaa; }
-        .btn {
-            background-color: #0088cc;
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
+            color: #64748b;
+            text-decoration: none;
+            font-size: 10px;
+            gap: 4px;
             cursor: pointer;
-            margin-top: 15px;
-            width: 200px;
+            width: 25%;
+            transition: color 0.2s;
         }
-        .btn-ad {
-            background-color: #34c759;
+
+        .nav-item i {
+            font-size: 18px;
+        }
+
+        .nav-item.active {
+            color: #0088cc;
+            font-weight: bold;
+        }
+
+        /* Timer Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .modal-card {
+            background: #112238;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 24px;
+            text-align: center;
+            max-width: 340px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            animation: zoomIn 0.2s ease-out;
+        }
+
+        @keyframes zoomIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .timer-circle {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #182e4a, #0d1b2e);
+            border: 4px solid #0088cc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 15px auto;
+            font-size: 28px;
+            font-weight: bold;
+            color: #38ef7d;
+            box-shadow: 0 0 20px rgba(0, 136, 204, 0.4);
+        }
+
+        /* Notification Toast */
+        .toast {
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #38ef7d;
+            color: #071527;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 13px;
+            display: none;
+            z-index: 3000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
     </style>
 </head>
 <body>
 
-    <h1>Welcome to My Mini App</h1>
-    <p>আপনার টেলিগ্রাম মিনি অ্যাপ চালু হয়েছে!</p>
+    <!-- Notification Toast -->
+    <div id="toast" class="toast">সফলভাবে বোনাস যোগ হয়েছে!</div>
 
-    <!-- বিজ্ঞাপন দেখার বাটন -->
-    <button class="btn btn-ad" onclick="show_11962597()">Watch Ad 🎁</button>
+    <!-- Header -->
+    <div class="header">
+        <div class="user-profile">
+            <div class="avatar-box" id="avatarBox">U</div>
+            <div class="user-info-text">
+                <div class="user-name">
+                    <span id="userName">User Name</span>
+                    <i class="fa-solid fa-circle-check verified-badge"></i>
+                </div>
+                <div class="user-balance-text" id="headerBalance">৳ 0.00</div>
+            </div>
+        </div>
+        <div class="live-payout-toast">
+            <i class="fa-solid fa-bolt"></i>
+            <span>Md:*** ৳2,900 প্রাপ্ত</span>
+        </div>
+    </div>
 
-    <br>
-    <button class="btn" onclick="Telegram.WebApp.close()">Close App</button>
+    <div class="container">
 
-    <script>
-        Telegram.WebApp.ready();
-        Telegram.WebApp.expand();
+        <!-- TAB 1: HOME -->
+        <div id="tab-home" class="tab-content active">
+            <img src="https://placehold.co/600x200/0d1b2e/38ef7d?text=Community+Task+Platform" alt="Banner" class="hero-banner">
 
-        // অ্যাপ ওপেন হওয়ার সাথে সাথেই বিজ্ঞাপন কল করার জন্য
-        window.onload = function() {
-            if (typeof show_11962597 === 'function') {
-                show_11962597();
-            }
-        };
-    </script>
-</body>
-</html>
+            <!-- Telegram Channel Join Box -->
+            <div class="card">
+                <h3 style="font-size: 15px; margin-bottom: 6px;">📢 অফিসিয়াল চ্যানেল</h3>
+                <p style="font-size: 12px; color: #8a99ad; margin-bottom: 12px;">নতুন আপডেট এবং পেমেন্ট প্রুফ পেতে আমাদের টেলিগ্রাম চ্যানেলে জয়েন করুন।</p>
+                <button class="btn-main btn-blue" onclick="openLink('https://t.me')">
+                    <i class="fa-brands fa-telegram"></i> পেমেন্ট চ্যানেলে যুক্ত হোন
+                </button>
+            </div>
+
+            <!-- Referral Section -->
+            <div class="card">
+                <h3 style="font-size: 15px; margin-bottom: 4px;">🎁 রেফারেল বোনাস</h3>
+                <p style="font-size: 12px; color: #8a99ad;">আপনার বন্ধুদের ইনভাইট করুন এবং প্রতি রেফারে নিশ্চিত বোনাস পান!</p>
+                
+                <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px; text-align: center; margin: 12px 0;">
+                    <span style="font-size: 11px; color: #8a99ad; display: block;">প্রতি রেফারে আয়</span>
+                    <strong style="font-size: 22px; color: #38ef7d;">৳100.00</strong>
+                </div>
+
+                <label style="font-size: 12px; color: #8a99ad;">আপনার রেফারাল লিংক:</label>
+                <div class="copy-box">
+                    <input type="text" id="refLinkInput" readonly value="https://t.me/hafi5bot?start=ref1234">
+                    <button class="copy-btn" onclick="copyReferralLink()"><i class="fa-regular fa-copy"></i> কপি</button>
+                </div>
+                
+                <button class="btn-main btn-primary" style="margin-top: 12px;" onclick="shareReferralLink()">
+                    <i class="fa-solid fa-share-nodes"></i> রেফার লিংক শেয়ার করুন
+                </button>
+            </div>
+        </div>
+
+        <!-- TAB 2: EARN (TASK) -->
+        <div id="tab-earn" class="tab-content">
+            <!-- Main Rewarded Ad Work Card -->
+            <div class="card income-card">
+                <div class="income-title">প্রতি বিজ্ঞাপনে নিশ্চিত আয়</div>
+                <div class="income-amount">৳ 20.00</div>
+
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <span>আজকের বিজ্ঞাপন দেখা</span>
+                        <strong id="adsWatchedCount">2 টি</strong>
+                    </div>
+                    <div class="stat-card">
+                        <span>আজকের বিজ্ঞাপন আয়</span>
+                        <strong id="adsEarningAmount">৳ 40.00</strong>
+                    </div>
+                </div>
+
+                <button class="btn-main" id="startAdBtn" onclick="triggerMonetagTask()">
+                    <i class="fa-solid fa-play"></i> বিজ্ঞাপন শুরু করুন (<span id="adsRemaining">48</span> টি বাকি | আজ <span id="todayProgress">2/50</span>)
+                </button>
+            </div>
+
+            <!-- YouTube Task -->
+            <div class="task-item">
+                <div class="task-left">
+                    <div class="task-icon icon-youtube">
+                        <i class="fa-brands fa-youtube"></i>
+                    </div>
+                    <div class="task-details">
+                        <h4>YouTube Video</h4>
+                        <span>৳ 25.00</span>
+                    </div>
+                </div>
+                <button class="btn-sm" onclick="startYoutubeTask()">শুরু করুন</button>
+            </div>
+
+            <!-- Telegram Channel Task -->
+            <div class="task-item">
+                <div class="task-left">
+                    <div class="task-icon icon-telegram">
+                        <i class="fa-brands fa-telegram"></i>
+                    </div>
+                    <div class="task-details">
+                        <h4>Join Telegram</h4>
+                        <span>৳ 10.00</span>
+                    </div>
+                </div>
+                <button class="btn-sm" onclick="startTelegramTask()">শুরু করুন</button>
+            </div>
+        </div>
+
+        <!-- TAB 3: WITHDRAW -->
+        <div id="tab-withdraw" class="tab-content">
+            <div class="card">
+                <h3 style="font-size: 16px; margin-bottom: 12px;"><i class="fa-solid fa-wallet"></i> টাকা উত্তোলন করুন</h3>
+                
+                <div class="form-group">
+                    <label>পেমেন্ট মেথড নির্বাচন করুন</label>
+                    <select class="form-control" id="withdrawMethod">
+                        <option value="bkash">বিকাশ (bKash)</option>
+                        <option value="nagad">নগদ (Nagad)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>একাউন্ট নাম্বার</label>
+                    <input type="number" class="form-control" id="accountNumber" placeholder="017XXXXXXXX">
+                </div>
+
+                <div class="form-group">
+                    <label>উইথড্র পরিমাণ (সর্বনিম্ন ৳500)</label>
+                    <input type="number" class="form-control" id="withdrawAmount" placeholder="500">
+                </div>
+
+                <button class="btn-main btn-primary" onclick="processWithdrawal()">
+                    উইথড্র রিকোয়েস্ট পাঠান
+                </button>
+            </div>
+        </div>
+
+        <!-- TAB 4: PROFILE -->
+        <div id="tab-profile" class="tab-content">
+            <div class="card" style="text-align: center;">
+                <div class="avatar-box" style="width: 70px; height: 70px; font-size: 28px; margin: 0 auto 12px;" id="profileAvatarBig">U</div>
+                <h3 id="profileNameBig">User Name</h3>
+                <p style="font-size: 12px; color: #8a99ad; margin-top: 4px;" id="profileId">ID: 12345678</p>
+            </div>
+
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <span style="color: #8a99ad;">মোট আর্নিং</span>
+                    <strong style="color: #38ef7d;" id="profileTotalEarn">৳ 40.00</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 10px 0;">
+                    <span style="color: #8a99ad;">মোট টাস্ক সম্পন্ন</span>
+                    <strong id="profileTasksDone">2 টি</strong>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Timer Modal -->
+    <div class="modal-overlay" id="adTimerModal">
+        <div class="modal-card">
+            <h3 style="font-size: 16px;">বিজ্ঞাপন লোড হচ্ছে...</h3>
+            <p style="font-size: 12px; color: #8a99ad; margin-top: 4px;">পুরো বোনাস পেতে অন্তত ১৫ সেকেন্ড অপেক্ষা করুন</p>
+            
+            <div class="timer-circle" id="modalTimerCount">15</div>
+
+            <button class="btn-main b
