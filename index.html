@@ -6,7 +6,7 @@
     <title>Earn Money Mini App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
-    <!-- Monetag Official Tag Script Zone: 11962597 -->
+    <!-- Monetag Tag Script Zone: 11962597 -->
     <script src="https://alwingulla.com/88/tag.min.js" data-zone="11962597" async data-cfasync="false"></script>
 
     <style>
@@ -23,8 +23,8 @@
         .btn-refer { background: #238636; }
         input, select { width: 100%; padding: 10px; margin-top: 8px; border-radius: 6px; border: 1px solid #30363d; background: #0d1117; color: #fff; box-sizing: border-box; }
         
-        /* Ad Timer Overlay */
-        #ad-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(13, 17, 23, 0.96); z-index: 99999; flex-direction: column; justify-content: space-between; padding: 25px 20px; box-sizing: border-box; text-align: center; }
+        /* Clean Overlay Screen */
+        #ad-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0d1117; z-index: 99999; flex-direction: column; justify-content: space-between; padding: 25px 20px; box-sizing: border-box; text-align: center; }
         .timer-badge { background: #1f6feb; color: #fff; padding: 8px 20px; border-radius: 20px; font-weight: bold; font-size: 18px; display: inline-block; }
         .ad-status-msg { margin-top: auto; margin-bottom: auto; }
         .monetag-label { font-size: 12px; color: #8b949e; margin-bottom: 8px; display: block; }
@@ -32,14 +32,14 @@
 </head>
 <body>
 
-    <!-- Ad Timer Screen Modal -->
+    <!-- Ad Timer Overlay -->
     <div id="ad-modal">
         <div>
             <div class="timer-badge">⏳ <span id="ad-timer">00:15</span></div>
         </div>
 
         <div class="ad-status-msg">
-            <h2 style="margin-bottom: 8px;">বিজ্ঞাপনটি সম্পূর্ণ দেখুন</h2>
+            <h2 style="margin-bottom: 8px; color: #58a6ff;">বিজ্ঞাপনটি দেখা হচ্ছে...</h2>
             <p style="color: #8b949e; font-size: 14px;">রিওয়ার্ড পেতে ১৫ সেকেন্ড অপেক্ষা করুন</p>
         </div>
 
@@ -53,7 +53,7 @@
     <div class="card user-info">
         <div class="avatar" id="avatar">U</div>
         <div>
-            <div id="user-name">User Name</div>
+            <div id="user-name">ইউজার নেম</div>
             <div style="color: #58a6ff;">৳ <span id="user-balance">0.00</span></div>
         </div>
     </div>
@@ -88,8 +88,8 @@
     <div class="card">
         <h3>💳 টাকা তুলুন (Withdraw)</h3>
         <select id="method">
-            <option value="bkash">bKash</option>
-            <option value="nagad">Nagad</option>
+            <option value="bkash">বিকাশ (bKash)</option>
+            <option value="nagad">নগদ (Nagad)</option>
         </select>
         <input type="text" id="phone" placeholder="মোবাইল নম্বর">
         <input type="number" id="amount" placeholder="টাকার পরিমাণ">
@@ -126,7 +126,7 @@
                 }
             } catch(e) {}
             document.getElementById('ad-reward-display').innerText = adReward.toFixed(2);
-            document.getElementById('amount').placeholder = `টাকার পরিমাণ (Minimum ৳${minWithdraw})`;
+            document.getElementById('amount').placeholder = `টাকার পরিমাণ (সর্বনিম্ন ৳${minWithdraw})`;
             updateUI();
         }
 
@@ -157,11 +157,9 @@
                 return;
             }
 
-            // Monetag Official Ads Trigger Call
+            // Monetag Official Rewarded Ad Trigger
             if (typeof show_11962597 === 'function') {
-                show_11962597().then(() => {
-                    // Ad shown successfully
-                }).catch(() => {});
+                show_11962597().catch(() => {});
             }
 
             document.getElementById('ad-modal').style.display = 'flex';
@@ -224,11 +222,11 @@
             const amount = parseFloat(document.getElementById('amount').value);
 
             if(!phone || !amount) {
-                alert("সব ঘর ঠিকভাবে পূরণ করুন!");
+                alert("সব তথ্য সঠিকভাবে পূরণ করুন!");
                 return;
             }
             if(amount < minWithdraw) {
-                alert(`Minimum ৳${minWithdraw} withdraw করতে পারবেন!`);
+                alert(`সর্বনিম্ন ৳${minWithdraw} উইথড্র করতে পারবেন!`);
                 return;
             }
             if(amount > balance) {
@@ -256,7 +254,7 @@
                 })
             });
 
-            alert("Withdraw Request জমা হয়েছে!");
+            alert("উইথড্র রিকোয়েস্ট সফলভাবে জমা হয়েছে!");
         }
 
         loadSettings();
