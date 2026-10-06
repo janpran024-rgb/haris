@@ -17,12 +17,13 @@
         .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; color: #fff; margin-top: 10px; }
         .btn-ad { background: #ffffff; color: #0088cc; }
         .btn-submit { background: #238636; }
+        .btn-refer { background: #238636; }
         input, select { width: 100%; padding: 10px; margin-top: 8px; border-radius: 6px; border: 1px solid #30363d; background: #0d1117; color: #fff; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
-    <!-- ইউজার প্রোফাইল -->
+    <!-- User Profile -->
     <div class="card user-info">
         <div class="avatar" id="avatar">U</div>
         <div>
@@ -31,35 +32,42 @@
         </div>
     </div>
 
-    <!-- বিজ্ঞাপন সেকশন -->
+    <!-- Ad Section -->
     <div class="card reward-box">
-        <div>প্রতি বিজ্ঞাপনে নিশ্চিত আয়</div>
+        <div>Proti ad-e nishchit ay</div>
         <h1 style="margin: 8px 0;">৳ <span id="ad-reward-display">1.00</span></h1>
         
         <div class="stats-grid">
             <div class="stat-item">
-                <small>আজকের বিজ্ঞাপন দেখা</small>
-                <div style="font-size: 18px; font-weight: bold;"><span id="ads-watched">0</span> টি</div>
+                <small>Ajker ad dekha</small>
+                <div style="font-size: 18px; font-weight: bold;"><span id="ads-watched">0</span> ti</div>
             </div>
             <div class="stat-item">
-                <small>আজকের বিজ্ঞাপন আয়</small>
+                <small>Ajker ad ay</small>
                 <div style="font-size: 18px; font-weight: bold;">৳ <span id="today-earned">0.00</span></div>
             </div>
         </div>
 
-        <button class="btn btn-ad" onclick="watchAd()">▶ বিজ্ঞাপন শুরু করুন (<span id="ads-remaining">10</span> টি বাকি)</button>
+        <button class="btn btn-ad" onclick="watchAd()">▶ Ad shuru korun (<span id="ads-remaining">10</span> ti baki)</button>
     </div>
 
-    <!-- উইথড্র সেকশন -->
+    <!-- Referral Section -->
     <div class="card">
-        <h3>💳 টাকা তুলুন (Withdraw)</h3>
+        <h3>🎁 Referral Bonus</h3>
+        <p style="font-size: 14px; color: #8b949e; margin-top: 5px;">Bondhuder invite korun ebong proti refer-e bonus pan!</p>
+        <button class="btn btn-refer" onclick="shareReferral()">🔗 Refer link share korun</button>
+    </div>
+
+    <!-- Withdraw Section -->
+    <div class="card">
+        <h3>💳 Taka tulun (Withdraw)</h3>
         <select id="method">
-            <option value="bkash">বিকাশ (bKash)</option>
-            <option value="nagad">নগদ (Nagad)</option>
+            <option value="bkash">bKash</option>
+            <option value="nagad">Nagad</option>
         </select>
-        <input type="text" id="phone" placeholder="মোবাইল নম্বর">
-        <input type="number" id="amount" placeholder="টাকার পরিমাণ">
-        <button class="btn btn-submit" onclick="submitWithdraw()">উইথড্র সাবমিট করুন</button>
+        <input type="text" id="phone" placeholder="Mobile number">
+        <input type="number" id="amount" placeholder="Takar poriman">
+        <button class="btn btn-submit" onclick="submitWithdraw()">Withdraw submit korun</button>
     </div>
 
     <script>
@@ -67,6 +75,7 @@
         tg.expand();
 
         const DB_URL = "https://hafi-hiba-default-rtdb.firebaseio.com/";
+        const BOT_USERNAME = "your_bot_username"; // Apnar bot username ekhane bosan (without @)
         const user = tg.initDataUnsafe.user || { id: "123456", first_name: "Demo User" };
 
         document.getElementById('user-name').innerText = user.first_name;
@@ -79,7 +88,6 @@
         let totalAds = 10;
         let minWithdraw = 50;
 
-        // 1. সেটিং ডাটা লোড
         async function loadSettings() {
             try {
                 const res = await fetch(`${DB_URL}/settings.json`);
@@ -91,11 +99,10 @@
                 }
             } catch(e) {}
             document.getElementById('ad-reward-display').innerText = adReward.toFixed(2);
-            document.getElementById('amount').placeholder = `টাকার পরিমাণ (নূন্যতম ৳${minWithdraw})`;
+            document.getElementById('amount').placeholder = `Takar poriman (Minimum ৳${minWithdraw})`;
             updateUI();
         }
 
-        // 2. ইউজার ডাটা লোড
         async function loadUserData() {
             try {
                 const res = await fetch(`${DB_URL}/users/${user.id}.json`);
@@ -117,10 +124,9 @@
             document.getElementById('ads-remaining').innerText = remaining > 0 ? remaining : 0;
         }
 
-        // 3. অ্যাড দেখার ফাংশন
         function watchAd() {
             if (adsWatched >= totalAds) {
-                alert("আজকের সকল বিজ্ঞাপনের সীমা শেষ!");
+                alert("Ajker shob ad dekha shesh!");
                 return;
             }
 
@@ -129,7 +135,7 @@
                     rewardUser();
                 });
             } else {
-                rewardUser(); // টেস্ট বা এড ব্লক থাকলে সরাসরি রিওয়ার্ড
+                rewardUser();
             }
         }
 
@@ -149,25 +155,30 @@
                     todayEarned: todayEarned
                 })
             });
-            alert(`অভিনন্দন! আপনি ৳${adReward} অর্জন করেছেন।`);
+            alert(`Abhinandan! Apni ৳${adReward} peyechen.`);
         }
 
-        // 4. উইথড্র রিকোয়েস্ট
+        function shareReferral() {
+            const refLink = `https://t.me/${BOT_USERNAME}?start=${user.id}`;
+            const shareText = `Amar shathe Task-to-Earn app-e kaj kore taka ay korun! Link: ${refLink}`;
+            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(shareText)}`);
+        }
+
         async function submitWithdraw() {
             const method = document.getElementById('method').value;
             const phone = document.getElementById('phone').value;
             const amount = parseFloat(document.getElementById('amount').value);
 
             if(!phone || !amount) {
-                alert("সবগুলো ঘর সঠিকভাবে পূরণ করুন!");
+                alert("Shob ghor thikbhabe puron korun!");
                 return;
             }
             if(amount < minWithdraw) {
-                alert(`সর্বনিম্ন ৳${minWithdraw} উইথড্র করতে পারবেন!`);
+                alert(`Minimum ৳${minWithdraw} withdraw korte parben!`);
                 return;
             }
             if(amount > balance) {
-                alert("আপনার পর্যাপ্ত ব্যালেন্স নেই!");
+                alert("Apnar porjapto balance nei!");
                 return;
             }
 
@@ -191,7 +202,7 @@
                 })
             });
 
-            alert("উইথড্র রিকোয়েস্ট সফলভাবে জমা হয়েছে!");
+            alert("Withdraw request jama hoyeche!");
         }
 
         loadSettings();
