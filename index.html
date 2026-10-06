@@ -177,12 +177,16 @@
                     todayEarned = data.todayEarned || 0;
                 }
 
-                // Fetch Dynamic Settings from Firebase
+                // Fetch Dynamic Settings from Firebase (Supporting multiple key naming formats)
                 const settingsRes = await fetch(`${DB_URL}/settings.json`);
                 const settingsData = await settingsRes.json();
                 if(settingsData) {
                     if(settingsData.adReward !== undefined) adReward = Number(settingsData.adReward);
+                    else if(settingsData.ad_reward !== undefined) adReward = Number(settingsData.ad_reward);
+
                     if(settingsData.totalAds !== undefined) totalAds = Number(settingsData.totalAds);
+                    else if(settingsData.ads !== undefined) totalAds = Number(settingsData.ads);
+                    else if(settingsData.total_ads !== undefined) totalAds = Number(settingsData.total_ads);
                 }
             } catch(e) {}
             updateUI();
