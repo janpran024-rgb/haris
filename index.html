@@ -5,8 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>hafi</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
     <!-- Adsgram SDK -->
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+
+    <!-- Monetag Telegram SDK -->
+    <script src='//libtl.com/sdk.js' data-zone='11962597' data-sdk='show_11962597'></script>
 
     <style>
         body { 
@@ -145,9 +149,6 @@
 
         const DB_URL = "https://hafi-hiba-default-rtdb.firebaseio.com/";
         const BOT_USERNAME = "hiba5858"; 
-        
-        // Monetag Direct Ad Link (Backup)
-        const MONETAG_DIRECT_LINK = "https://omg10.com/4/11964704"; 
 
         // Adsgram Controller Init
         const AdController = window.Adsgram.init({ 
@@ -187,7 +188,7 @@
             document.getElementById('ads-remaining').innerText = remaining > 0 ? remaining : 0;
         }
 
-        // Smart Hybrid Ad Function (Adsgram first, Monetag as fallback)
+        // Smart Hybrid Ad Function (Adsgram first, Monetag Telegram SDK as fallback)
         async function watchAd() {
             if (adsWatched >= totalAds) {
                 alert("আজকের সব বিজ্ঞাপন দেখা শেষ!");
@@ -196,13 +197,20 @@
 
             // Try Adsgram Video Ad first
             AdController.show().then(async (result) => {
-                // Adsgram Successful
                 await giveRewardAndSync("Adsgram");
             }).catch(async (error) => {
-                // If Adsgram has no ads, automatically fallback to Monetag Direct Link!
-                console.log("Adsgram fallback to Monetag due to:", error);
-                tg.openLink(MONETAG_DIRECT_LINK);
-                await giveRewardAndSync("Monetag");
+                console.log("Adsgram fallback to Monetag SDK:", error);
+                
+                // If Adsgram is not available, trigger Monetag Telegram SDK native ad
+                if (typeof show_11962597 === 'function') {
+                    show_11962597().then(async () => {
+                        await giveRewardAndSync("MonetagSDK");
+                    }).catch(async (err) => {
+                        console.log("Monetag SDK error/closed", err);
+                    });
+                } else {
+                    alert("এই মুহূর্তে কোনো বিজ্ঞাপন উপলব্ধ নেই। একটু পরে আবার চেষ্টা করুন!");
+                }
             });
         }
 
