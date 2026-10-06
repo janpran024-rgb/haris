@@ -78,10 +78,10 @@
         tg.expand();
 
         const DB_URL = "https://hafi-hiba-default-rtdb.firebaseio.com/";
-        const BOT_USERNAME = "hiba5858"; // আপনার বটের ইউজারনেম
+        const BOT_USERNAME = "hiba5858"; 
         
-        // Monetag Direct Link (আপনার Monetag অ্যাকাউন্ট থেকে Direct Link এনে "https://google.com" সরিয়ে সেখানে বসান)
-        const MONETAG_DIRECT_LINK = "https://google.com"; 
+        // আপনার Monetag Direct Link
+        const MONETAG_DIRECT_LINK = "https://omg10.com/4/11964704"; 
 
         const user = tg.initDataUnsafe.user || { id: "123456", first_name: "Demo User" };
 
@@ -137,7 +137,6 @@
                 return;
             }
 
-            // 1. Monetag SDK মাধ্যমে বিজ্ঞাপন দেখানোর চেষ্টা
             if (typeof show_881218 === 'function') {
                 show_881218().then(() => {
                     rewardUser();
@@ -145,16 +144,12 @@
                     openDirectLinkAd();
                 });
             } else {
-                // 2. SDK না চললে Direct Link বিজ্ঞাপন ওপেন হবে
                 openDirectLinkAd();
             }
         }
 
         function openDirectLinkAd() {
-            // বিজ্ঞাপনের লিঙ্ক নতুন ট্যাবে ওপেন হবে
             tg.openLink(MONETAG_DIRECT_LINK);
-            
-            // ১ সেকেন্ড পর রিওয়ার্ড জমা হবে
             setTimeout(() => {
                 rewardUser();
             }, 1000);
