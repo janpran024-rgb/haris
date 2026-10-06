@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Earn Money Mini App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <!-- Monetag In-App Script -->
     <script src="https://alwingulla.com/88/tag.min.js" data-zone="118218" async data-cfasync="false"></script>
+
     <style>
         body { font-family: 'Arial', sans-serif; background-color: #0d1117; color: #fff; margin: 0; padding: 15px; }
         .card { background: #161b22; border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid #30363d; }
@@ -75,7 +78,11 @@
         tg.expand();
 
         const DB_URL = "https://hafi-hiba-default-rtdb.firebaseio.com/";
-        const BOT_USERNAME = "your_bot_username"; // Apnar bot username ekhane bosan (without @)
+        const BOT_USERNAME = "hiba5858"; // আপনার বটের ইউজারনেম
+        
+        // Monetag Direct Link (আপনার Monetag অ্যাকাউন্ট থেকে Direct Link এনে "https://google.com" সরিয়ে সেখানে বসান)
+        const MONETAG_DIRECT_LINK = "https://google.com"; 
+
         const user = tg.initDataUnsafe.user || { id: "123456", first_name: "Demo User" };
 
         document.getElementById('user-name').innerText = user.first_name;
@@ -130,13 +137,27 @@
                 return;
             }
 
+            // 1. Monetag SDK মাধ্যমে বিজ্ঞাপন দেখানোর চেষ্টা
             if (typeof show_881218 === 'function') {
                 show_881218().then(() => {
                     rewardUser();
+                }).catch(() => {
+                    openDirectLinkAd();
                 });
             } else {
-                rewardUser();
+                // 2. SDK না চললে Direct Link বিজ্ঞাপন ওপেন হবে
+                openDirectLinkAd();
             }
+        }
+
+        function openDirectLinkAd() {
+            // বিজ্ঞাপনের লিঙ্ক নতুন ট্যাবে ওপেন হবে
+            tg.openLink(MONETAG_DIRECT_LINK);
+            
+            // ১ সেকেন্ড পর রিওয়ার্ড জমা হবে
+            setTimeout(() => {
+                rewardUser();
+            }, 1000);
         }
 
         async function rewardUser() {
