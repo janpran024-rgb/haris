@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Earn Money Mini App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    
-    <!-- Monetag Official In-App Script Zone: 11962597 -->
-    <script src="https://alwingulla.com/88/tag.min.js" data-zone="11962597" async data-cfasync="false"></script>
 
     <style>
         body { font-family: 'Arial', sans-serif; background-color: #0d1117; color: #fff; margin: 0; padding: 15px; }
@@ -80,6 +77,9 @@
         const DB_URL = "https://hafi-hiba-default-rtdb.firebaseio.com/";
         const BOT_USERNAME = "hiba5858"; 
 
+        // Monetag Direct Link
+        const MONETAG_DIRECT_LINK = "https://omg10.com/4/11964704"; 
+
         const user = tg.initDataUnsafe.user || { id: "123456", first_name: "Demo User" };
 
         document.getElementById('user-name').innerText = user.first_name;
@@ -134,20 +134,9 @@
                 return;
             }
 
-            // Monetag Correct Function Call for Zone 11962597
-            if (typeof show_11962597 === 'function') {
-                show_11962597().then(() => {
-                    rewardUser();
-                }).catch((err) => {
-                    alert("Ad load hote pareni, ektu por abar chestha korun.");
-                });
-            } else if (typeof show_881218 === 'function') {
-                show_881218().then(() => {
-                    rewardUser();
-                });
-            } else {
-                alert("Ad load hocche, ektu pore abar try korun!");
-            }
+            // লিঙ্ক ওপেন করে রিওয়ার্ড প্রসেস করা
+            tg.openLink(MONETAG_DIRECT_LINK);
+            rewardUser();
         }
 
         async function rewardUser() {
