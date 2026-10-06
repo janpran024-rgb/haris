@@ -23,32 +23,31 @@
         .btn-refer { background: #238636; }
         input, select { width: 100%; padding: 10px; margin-top: 8px; border-radius: 6px; border: 1px solid #30363d; background: #0d1117; color: #fff; box-sizing: border-box; }
         
-        /* Telegram Native Ad Style (Matches Screenshot) */
-        #ad-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f1721; z-index: 99999; flex-direction: column; justify-content: space-between; padding: 15px; box-sizing: border-box; }
+        /* Clean Ad Overlay */
+        #ad-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f1721; z-index: 99999; flex-direction: column; justify-content: space-between; padding: 20px; box-sizing: border-box; }
         .ad-top-bar { text-align: center; }
-        .timer-badge { background: rgba(255, 255, 255, 0.15); padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 14px; display: inline-block; }
-        .ad-body { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 15px 0; border-radius: 12px; overflow: hidden; background: #17212b; position: relative; }
-        #ad-frame { width: 100%; height: 100%; border: none; min-height: 280px; }
+        .timer-badge { background: rgba(255, 255, 255, 0.15); padding: 6px 18px; border-radius: 20px; font-weight: bold; font-size: 15px; display: inline-block; }
+        .ad-body-content { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; background: #17212b; border-radius: 12px; margin: 20px 0; border: 1px solid #242f3d; }
         .ad-footer { text-align: center; }
         .monetag-label { font-size: 12px; color: #7f8c8d; margin-bottom: 8px; display: block; }
     </style>
 </head>
 <body>
 
-    <!-- Native Telegram Ad Popup -->
+    <!-- Native Ad Modal Popup -->
     <div id="ad-modal">
         <div class="ad-top-bar">
             <div class="timer-badge">⏳ <span id="ad-timer">00:15</span></div>
         </div>
 
-        <div class="ad-body" id="ad-container">
-            <!-- Monetag Real Ad Frame -->
-            <iframe id="ad-frame" src="about:blank"></iframe>
+        <div class="ad-body-content">
+            <h2 style="margin-bottom: 10px; color: #58a6ff;">Sponsor Advertisement</h2>
+            <p style="color: #8b949e; font-size: 14px; max-width: 250px;">Ad is loading... Please wait 15 seconds to claim your reward.</p>
         </div>
 
         <div class="ad-footer">
             <span class="monetag-label">ads by Monetag</span>
-            <button class="btn btn-ad" id="continue-btn" disabled onclick="finishAd()">Continue</button>
+            <button class="btn btn-ad" id="continue-btn" disabled onclick="finishAd()">Wait for timer...</button>
         </div>
     </div>
 
@@ -160,15 +159,12 @@
                 return;
             }
 
-            // Trigger Monetag Official SDK
+            // Trigger Official Monetag Ad
             if (typeof show_11962597 === 'function') {
                 show_11962597().catch(() => {});
             }
 
-            // Load Direct Monetag Ad inside Iframe for real banner
-            document.getElementById('ad-frame').src = "https://omg10.com/4/11964704";
             document.getElementById('ad-modal').style.display = 'flex';
-            
             startAdTimer();
         }
 
@@ -194,7 +190,6 @@
 
         function finishAd() {
             document.getElementById('ad-modal').style.display = 'none';
-            document.getElementById('ad-frame').src = "about:blank";
             rewardUser();
         }
 
