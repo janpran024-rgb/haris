@@ -6,9 +6,6 @@
     <title>hafi</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
-    <!-- Adsgram SDK -->
-    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
-
     <!-- Monetag Telegram SDK -->
     <script src='//libtl.com/sdk.js' data-zone='11962597' data-sdk='show_11962597'></script>
 
@@ -150,11 +147,6 @@
         const DB_URL = "https://hafi-hiba-default-rtdb.firebaseio.com/";
         const BOT_USERNAME = "hiba5858"; 
 
-        // Adsgram Controller Init
-        const AdController = window.Adsgram.init({ 
-            blockId: "int-52257" 
-        });
-
         const user = tg.initDataUnsafe.user || { id: "123456", first_name: "ABU SALEH MD HARIS" };
 
         document.getElementById('user-name').innerText = user.first_name.toUpperCase();
@@ -177,7 +169,7 @@
                     todayEarned = data.todayEarned || 0;
                 }
 
-                // Fetch Dynamic Settings from Firebase (Supporting multiple key naming formats)
+                // Fetch Dynamic Settings from Firebase
                 const settingsRes = await fetch(`${DB_URL}/settings.json`);
                 const settingsData = await settingsRes.json();
                 if(settingsData) {
@@ -201,30 +193,23 @@
             document.getElementById('ads-remaining').innerText = remaining > 0 ? remaining : 0;
         }
 
-        // Smart Hybrid Ad Function (Adsgram first, Monetag Telegram SDK as fallback)
+        // Monetag Telegram SDK Ad Function
         async function watchAd() {
             if (adsWatched >= totalAds) {
                 alert("আজকের সব বিজ্ঞাপন দেখা শেষ!");
                 return;
             }
 
-            // Try Adsgram Video Ad first
-            AdController.show().then(async (result) => {
-                await giveRewardAndSync("Adsgram");
-            }).catch(async (error) => {
-                console.log("Adsgram fallback to Monetag SDK:", error);
-                
-                // If Adsgram is not available, trigger Monetag Telegram SDK native ad
-                if (typeof show_11962597 === 'function') {
-                    show_11962597().then(async () => {
-                        await giveRewardAndSync("MonetagSDK");
-                    }).catch(async (err) => {
-                        console.log("Monetag SDK error/closed", err);
-                    });
-                } else {
+            if (typeof show_11962597 === 'function') {
+                show_11962597().then(async () => {
+                    await giveRewardAndSync("MonetagSDK");
+                }).catch(async (err) => {
+                    console.log("Monetag SDK error/closed", err);
                     alert("এই মুহূর্তে কোনো বিজ্ঞাপন উপলব্ধ নেই। একটু পরে আবার চেষ্টা করুন!");
-                }
-            });
+                });
+            } else {
+                alert("এই মুহূর্তে কোনো বিজ্ঞাপন উপলব্ধ নেই। একটু পরে আবার চেষ্টা করুন!");
+            }
         }
 
         async function giveRewardAndSync(sourceType) {
