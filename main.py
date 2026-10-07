@@ -1,6 +1,7 @@
 import asyncio
 import os
 import requests
+from datetime import datetime
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import threading
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
@@ -26,22 +27,38 @@ def run_http_server():
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     if user.username != ADMIN_USERNAME:
-        await update.message.reply_text("❌ আপনার এই এডমিন প্যানেল ব্যবহারের অনুমতি নেই।")
+        await update.message.reply_text("❌ Apnar ei admin panel beboharer onumoti nei.")
         return
 
+    # --- Daily Reset Logic for Users (Optional check when admin or user interacts) ---
+    try:
+        current_date = datetime.now().strftime("%Y-%m-%d")
+        users_res = requests.get(f"{DB_URL}/users.json").json()
+        if users_res:
+            for uid, udata in users_res.items():
+                if isinstance(udata, dict):
+                    last_date = udata.get('last_reset_date', '')
+                    if last_date != current_date:
+                        requests.patch(f"{DB_URL}/users/{uid}.json", json={
+                            'today_watched_ads': 0,
+                            'last_reset_date': current_date
+                        })
+    except Exception:
+        pass
+
     keyboard = [
-        [InlineKeyboardButton("💳 উইথড্র রিকোয়েস্ট চেক করুন", callback_data="check_withdraw")],
-        [InlineKeyboardButton("📊 মোট ইউজার সংখ্যা", callback_data="total_users")],
-        [InlineKeyboardButton("⚙️ বর্তমান সেটিংস দেখুন", callback_data="show_settings")]
+        [InlineKeyboardButton("💳 Withdraw Request Check", callback_data="check_withdraw")],
+        [InlineKeyboardButton("📊 Total Users", callback_data="total_users")],
+        [InlineKeyboardButton("⚙️ Current Settings", callback_data="show_settings")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
     help_text = (
-        "👋 **স্বাগতম এডমিন প্যানেলে!**\n\n"
-        "⚙️ **সেটিংস পরিবর্তন করার কমান্ডসমূহ:**\n"
-        "• প্রতি অ্যাডের আয় পরিবর্তন: `/set ad_reward 5`\n"
-        "• মোট বিজ্ঞাপন সংখ্যা: `/set total_ads 10`\n"
-        "• সর্বনিম্ন উইথড্র লিমিট: `/set min_withdraw 50`"
+        "👋 *Swagotom Admin Panele!*\n\n"
+        "⚙️ *Settings Poriborton Korar Commandshomuho:*\n"
+        "• Proti ad-er ay poriborton: `/set ad_reward 5`\n"
+        "• Motbiggapon shongkha: `/set total_ads 10`\n"
+        "• Sorbonimmo withdraw limit: `/set min_withdraw 50`"
     )
     await update.message.reply_text(help_text, reply_markup=reply_markup, parse_mode="Markdown")
 
@@ -53,30 +70,31 @@ async def button_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
         try:
             res = requests.get(f"{DB_URL}/withdrawals.json").json()
             if not res:
-                await query.edit_message_text("বর্তমানে কোনো পেন্ডিং উইথড্র রিকোয়েস্ট নেই।")
+                await query.edit_message_text("Bortomane kono pending withdraw request nei.")
                 return
 
-            text = "📋 **পেন্ডিং উইথড্র তালিকা:**\n\n"
+            text = "📋 Pending Withdraw Talika:\n\n"
             has_pending = False
             for key, value in res.items():
                 if isinstance(value, dict) and value.get("status") == "Pending":
                     has_pending = True
-                    text += f"👤 নাম: {value.get('name')}\n📱 {str(value.get('method')).upper()}: {value.get('phone')}\n💰 পরিমাণ: ৳{value.get('amount')}\n--------------------\n"
+                    text += f"👤 Nam: {value.get('name')}\n📱 {str(value.get('method')).upper()}: {value.get('phone')}\n💰 Poriman: ৳{value.get('amount')}\n--------------------\n"
             
             if not has_pending:
-                text = "বর্তমানে কোনো পেন্ডিং উইথড্র রিকোয়েস্ট নেই।"
+                text = "Bortomane kono pending withdraw request nei."
 
-            await query.edit_message_text(text, parse_mode="Markdown")
+            # Markdown parse error dur korar jonno parse_mode bad dewa holo
+            await query.edit_message_text(text)
         except Exception:
-            await query.edit_message_text("ডাটা লোড করতে সমস্যা হয়েছে।")
+            await query.edit_message_text("Data load korte somoshya hoyeche.")
 
     elif query.data == "total_users":
         try:
             res = requests.get(f"{DB_URL}/users.json").json()
             total = len(res) if res else 0
-            await query.edit_message_text(f"👥 মোট রেজিস্টার্ড ইউজার: {total} জন")
+            await query.edit_message_text(f"👥 Mot registered user: {total} jon")
         except Exception:
-            await query.edit_message_text("ইউজার তথ্য পাওয়া যায়নি।")
+            await query.edit_message_text("User totho pawa jayni.")
 
     elif query.data == "show_settings":
         try:
@@ -86,16 +104,16 @@ async def button_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
             min_withdraw = res.get("min_withdraw", 50)
             
             msg = (
-                "⚙️ **বর্তমান অ্যাপ সেটিংস:**\n\n"
-                f"💰 প্রতি অ্যাডে আয়: ৳{ad_reward}\n"
-                f"📺 দৈনিক মোট অ্যাড: {total_ads}টি\n"
-                f"💳 সর্বনিম্ন উইথড্র: ৳{min_withdraw}"
+                "⚙️ *Bortoman App Settings:*\n\n"
+                f"💰 Proti ad-e ay: ৳{ad_reward}\n"
+                f"📺 Dainik mot ad: {total_ads}ti\n"
+                f"💳 Sorbonimmo withdraw: ৳{min_withdraw}"
             )
             await query.edit_message_text(msg, parse_mode="Markdown")
         except Exception:
-            await query.edit_message_text("সেটিংস তথ্য আনা সম্ভব হয়নি।")
+            await query.edit_message_text("Settings totho ana sombhob hoyni.")
 
-# কমান্ডের মাধ্যমে সেটিংস পরিবর্তন
+# Command er maddhome settings poriborton
 async def set_setting(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     if user.username != ADMIN_USERNAME:
@@ -103,11 +121,11 @@ async def set_setting(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if len(context.args) < 2:
         await update.message.reply_text(
-            "⚠️ **সঠিক ফরম্যাট:** `/set <key> <value>`\n\n"
-            "উদাহরণ:\n"
-            "`/set ad_reward 5` (প্রতি অ্যাডে ৫ টাকা)\n"
-            "`/set total_ads 15` (মোট ১৫টি অ্যাড)\n"
-            "`/set min_withdraw 100` (সর্বনিম্ন ১০০ টাকা)",
+            "⚠️ *Sothik Format:* `/set <key> <value>`\n\n"
+            "Udahoron:\n"
+            "`/set ad_reward 5`\n"
+            "`/set total_ads 15`\n"
+            "`/set min_withdraw 100`",
             parse_mode="Markdown"
         )
         return
@@ -118,12 +136,11 @@ async def set_setting(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except ValueError:
         val = context.args[1]
 
-    # Firebase-এ সেভ করা
     res = requests.patch(f"{DB_URL}/settings.json", json={key: val})
     if res.status_code == 200:
-        await update.message.reply_text(f"✅ সফলভাবে **{key}** পরিবর্তন করে **{val}** করা হয়েছে!", parse_mode="Markdown")
+        await update.message.reply_text(f"✅ Shofolvabe *{key}* poriborton kore *{val}* kora hoyeche!", parse_mode="Markdown")
     else:
-        await update.message.reply_text("❌ আপডেট করতে ব্যর্থ হয়েছে।")
+        await update.message.reply_text("❌ Update korte byrtho hoyeche.")
 
 def main():
     threading.Thread(target=run_http_server, daemon=True).start()
@@ -137,4 +154,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
+                     
