@@ -30,7 +30,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("❌ Apnar ei admin panel beboharer onumoti nei.")
         return
 
-    # --- Daily Reset Logic for Users (Optional check when admin or user interacts) ---
+    # --- Daily Reset Logic for Users ---
     try:
         current_date = datetime.now().strftime("%Y-%m-%d")
         users_res = requests.get(f"{DB_URL}/users.json").json()
@@ -83,7 +83,6 @@ async def button_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if not has_pending:
                 text = "Bortomane kono pending withdraw request nei."
 
-            # Markdown parse error dur korar jonno parse_mode bad dewa holo
             await query.edit_message_text(text)
         except Exception:
             await query.edit_message_text("Data load korte somoshya hoyeche.")
@@ -91,10 +90,26 @@ async def button_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif query.data == "total_users":
         try:
             res = requests.get(f"{DB_URL}/users.json").json()
-            total = len(res) if res else 0
-            await query.edit_message_text(f"👥 Mot registered user: {total} jon")
+            if not res:
+                await query.edit_message_text("👥 Ekhono kono registered user nei.")
+                return
+
+            text = "👥 **Registered User-der Talika:**\n\n"
+            count = 1
+            for uid, udata in res.items():
+                if isinstance(udata, dict):
+                    name = udata.get('name', 'Unknown')
+                    balance = udata.get('balance', 0)
+                    ads = udata.get('adsWatched', udata.get('today_watched_ads', 0))
+                    text += f"{count}. **{name}**\n   🆔 ID: `{uid}`\n   💰 Balance: ৳{balance:.2f} | Ads: {ads}ti\n\n"
+                    count += 1
+
+            if len(text) > 4096:
+                text = text[:4000] + "\n\n...[Talika boro tai songkhep kora holo]"
+
+            await query.edit_message_text(text, parse_mode="Markdown")
         except Exception:
-            await query.edit_message_text("User totho pawa jayni.")
+            await query.edit_message_text("User totho ana sombhob hoyni.")
 
     elif query.data == "show_settings":
         try:
@@ -113,7 +128,6 @@ async def button_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
         except Exception:
             await query.edit_message_text("Settings totho ana sombhob hoyni.")
 
-# Command er maddhome settings poriborton
 async def set_setting(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     if user.username != ADMIN_USERNAME:
@@ -154,4 +168,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-                     
+            
