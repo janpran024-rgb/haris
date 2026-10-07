@@ -16,7 +16,7 @@
             color: #fff; 
             margin: 0; 
             padding: 15px;
-            padding-bottom: 70px; /* নেভিগেশন বারের জন্য জায়গা */
+            padding-bottom: 70px; 
         }
         
         /* Profile Header */
@@ -139,6 +139,55 @@
             font-size: 18px;
             margin-bottom: 2px;
         }
+
+        /* Modal Popup Design */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .modal-content {
+            background: #131c2e;
+            padding: 20px;
+            border-radius: 16px;
+            width: 85%;
+            max-width: 320px;
+            text-align: center;
+            border: 1px solid #1f293d;
+        }
+        .modal-content h3 { margin-top: 0; color: #00aaff; }
+        .modal-content input, .modal-content select {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            background: #0b1320;
+            border: 1px solid #2b5278;
+            color: #fff;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        .modal-btn {
+            background: #00aaff;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .modal-close {
+            background: #ef4444;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -180,7 +229,7 @@
 
     <!-- Bottom Navigation Bar -->
     <div class="nav-bar">
-        <button class="nav-item active">
+        <button class="nav-item active" onclick="switchTab('home')">
             <div>🏠</div>হোম
         </button>
         <button class="nav-item" onclick="alert('আয় করার জন্য উপরের বিজ্ঞাপন শুরু করুন বাটনে ক্লিক করুন।')">
@@ -189,13 +238,40 @@
         <button class="nav-item" onclick="alert('সাপোর্টের জন্য আমাদের টেলিগ্রাম চ্যানেলে যোগাযোগ করুন।')">
             <div>❓</div>সাপোর্ট
         </button>
-        <button class="nav-item" onclick="alert('উইথড্র অপশন শীঘ্রই আসছে!')">
+        <button class="nav-item" onclick="openWithdrawModal()">
             <div>💳</div>উইথড্র
         </button>
-        <button class="nav-item" onclick="alert('প্রফাইল ফিচারটি আপডেট করা হচ্ছে।')">
+        <button class="nav-item" onclick="openProfileModal()">
             <div>👤</div>প্রফাইল
         </button>
     </div>
+
+    <!-- Withdraw Modal -->
+    <div class="modal" id="withdrawModal">
+        <div class="modal-content">
+            <h3>💳 উইথড্র রিকোয়েস্ট</h3>
+            <select id="method">
+                <option value="Bkash">বিকাশ (Bkash)</option>
+                <option value="Nagad">নগদ (Nagad)</option>
+                <option value="Recharge">মোবাইল রিচার্জ</option>
+            </select>
+            <input type="text" id="accountNo" placeholder="আপনার নম্বর দিন">
+            <input type="number" id="withdrawAmount" placeholder="টাকার পরিমাণ">
+            <button class="modal-btn" onclick="submitWithdraw()">রিকোয়েস্ট পাঠান</button>
+            <button class="modal-btn modal-close" onclick="closeModals()">বন্ধ করুন</button>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="modal" id="profileModal">
+    <div class="modal-content">
+        <h3>👤 ইউজারের প্রফাইল</h3>
+        <p style="text-align: left; font-size: 13px; margin: 5px 0;">নাম: <span id="p-name" style="color: #00aaff;">-</span></p>
+        <p style="text-align: left; font-size: 13px; margin: 5px 0;">ইউজার আইডি: <span id="p-id" style="color: #00aaff;">-</span></p>
+        <p style="text-align: left; font-size: 13px; margin: 5px 0;">মোট ব্যালেন্স: ৳ <span id="p-balance" style="color: #2abee8;">0.00</span></p>
+        <button class="modal-btn modal-close" onclick="closeModals()">বন্ধ করুন</button>
+    </div>
+</div>
 
     <script>
         const tg = window.Telegram.WebApp;
@@ -217,17 +293,12 @@
 
         async function loadUserData() {
             try {
-                // আজকের তারিখ বের করা (ডেইলি রিসেটের জন্য)
                 const currentDate = new Date().toISOString().split('T')[0];
-
-                // Fetch User Data
                 const res = await fetch(`${DB_URL}/users/${user.id}.json`);
                 const data = await res.json();
                 
                 if(data) {
                     let lastReset = data.lastResetDate || "";
-                    
-                    // যদি দিন পরিবর্তন হয়ে থাকে তবে আজকের অ্যাড কাউন্ট রিসেট হবে
                     if (lastReset !== currentDate) {
                         adsWatched = 0;
                         todayEarned = 0;
@@ -245,7 +316,6 @@
                     }
                     balance = data.balance || 0;
                 } else {
-                    // নতুন ইউজার হলে ইনিশিয়াল ডাটা সেভ করা
                     await fetch(`${DB_URL}/users/${user.id}.json`, {
                         method: 'PATCH',
                         body: JSON.stringify({
@@ -258,7 +328,6 @@
                     });
                 }
 
-                // Fetch Dynamic Settings from Firebase
                 const settingsRes = await fetch(`${DB_URL}/settings.json`);
                 const settingsData = await settingsRes.json();
                 if(settingsData) {
@@ -291,7 +360,6 @@
             }
         }
 
-        // Monetag Telegram SDK Ad Function
         async function watchAd() {
             if (adsWatched >= totalAds) {
                 alert("আজকের সব বিজ্ঞাপন দেখা শেষ!");
@@ -346,8 +414,65 @@
             tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(shareText)}`);
         }
 
+        // Modal Controls
+        function openWithdrawModal() {
+            document.getElementById('withdrawModal').style.display = 'flex';
+        }
+
+        function openProfileModal() {
+            document.getElementById('p-name').innerText = user.first_name;
+            document.getElementById('p-id').innerText = user.id;
+            document.getElementById('p-balance').innerText = balance.toFixed(2);
+            document.getElementById('profileModal').style.display = 'flex';
+        }
+
+        function closeModals() {
+            document.getElementById('withdrawModal').style.display = 'none';
+            document.getElementById('profileModal').style.display = 'none';
+        }
+
+        async function submitWithdraw() {
+            const method = document.getElementById('method').value;
+            const accountNo = document.getElementById('accountNo').value;
+            const amount = Number(document.getElementById('withdrawAmount').value);
+
+            if (!accountNo || !amount) {
+                alert("দয়া করে সমস্ত তথ্য পূরণ করুন!");
+                return;
+            }
+
+            if (amount > balance) {
+                alert("আপনার অ্যাকাউন্টে পর্যাপ্ত পরিমাণ ব্যালেন্স নেই!");
+                return;
+            }
+
+            // ব্যালেন্স কেটে নেওয়া এবং ফায়ারবেসে উইথড্র সেভ করা
+            balance -= amount;
+            updateUI();
+
+            await fetch(`${DB_URL}/withdraws.json`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    userId: user.id,
+                    name: user.first_name,
+                    method: method,
+                    accountNo: accountNo,
+                    amount: amount,
+                    status: "Pending",
+                    timestamp: new Date().toISOString()
+                })
+            });
+
+            await fetch(`${DB_URL}/users/${user.id}.json`, {
+                method: 'PATCH',
+                body: JSON.stringify({ balance: balance })
+            });
+
+            alert("উইথড্র রিকোয়েস্ট সফলভাবে জমা হয়েছে!");
+            closeModals();
+        }
+
         loadUserData();
     </script>
 </body>
 </html>
-
