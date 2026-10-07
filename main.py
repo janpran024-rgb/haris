@@ -70,22 +70,44 @@ async def button_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
         try:
             res = requests.get(f"{DB_URL}/withdrawals.json").json()
             if not res:
-                await query.edit_message_text("Bortomane kono pending withdraw request nei.")
+                await query.edit_message_text("Bortomane kono withdraw request nei.")
                 return
 
-            text = "📋 Pending Withdraw Talika:\n\n"
+            keyboard = []
+            text = "📋 **Withdraw Request Talika:**\n\n"
             has_pending = False
+            
             for key, value in res.items():
-                if isinstance(value, dict) and value.get("status") == "Pending":
-                    has_pending = True
-                    text += f"👤 Nam: {value.get('name')}\n📱 {str(value.get('method')).upper()}: {value.get('phone')}\n💰 Poriman: ৳{value.get('amount')}\n--------------------\n"
+                if isinstance(value, dict):
+                    status = value.get("status", "Pending")
+                    name = value.get('name', 'Unknown')
+                    method = str(value.get('method', '')).upper()
+                    phone = value.get('accountNo', value.get('phone', ''))
+                    amount = value.get('amount', 0)
+                    
+                    text += f"👤 {name}\n📱 {method}: {phone}\n💰 ৳{amount} | Status: *{status}*\n--------------------\n"
+                    
+                    # যদি স্ট্যাটাস Pending থাকে, তবে অ্যাপ্রুভ করার বাটন যোগ করা হবে
+                    if status == "Pending":
+                        has_pending = True
+                        keyboard.append([InlineKeyboardButton(f"✅ Approve: {name} (৳{amount})", callback_data=f"app_{key}")])
             
             if not has_pending:
-                text = "Bortomane kono pending withdraw request nei."
+                text += "\n*(Sob request gulo approve kora hoyeche)*"
 
-            await query.edit_message_text(text)
+            reply_markup = InlineKeyboardMarkup(keyboard) if keyboard else None
+            await query.edit_message_text(text, reply_markup=reply_markup, parse_mode="Markdown")
         except Exception:
             await query.edit_message_text("Data load korte somoshya hoyeche.")
+
+    elif query.data.startswith("app_"):
+        req_id = query.data.split("_")[1]
+        try:
+            # ফায়ারবেসে নির্দিষ্ট উইথড্র রিকোয়েস্টের স্ট্যাটাস Paid করে দেওয়া
+            requests.patch(f"{DB_URL}/withdrawals/{req_id}.json", json={"status": "Paid"})
+            await query.edit_message_text("✅ Withdraw request-ti Successfully 'Paid' kora hoyeche!")
+        except Exception:
+            await query.edit_message_text("❌ Status update korte byrtho hoyeche.")
 
     elif query.data == "total_users":
         try:
@@ -168,4 +190,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-            
+    
