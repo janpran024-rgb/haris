@@ -278,7 +278,7 @@
         tg.expand();
 
         const DB_URL = "https://hafi-hiba-default-rtdb.firebaseio.com/";
-        const BOT_USERNAME = "Jh58bot"; 
+        const BOT_USERNAME = "hiba5858"; 
 
         const user = tg.initDataUnsafe.user || { id: "123456", first_name: "ABU SALEH MD HARIS" };
 
@@ -298,12 +298,14 @@
                 const data = await res.json();
                 
                 if(data) {
+                    balance = data.balance || 0;
                     let lastReset = data.lastResetDate || "";
                     if (lastReset !== currentDate) {
                         adsWatched = 0;
                         todayEarned = 0;
                         await fetch(`${DB_URL}/users/${user.id}.json`, {
                             method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
                                 adsWatched: 0,
                                 todayEarned: 0,
@@ -314,10 +316,13 @@
                         adsWatched = data.adsWatched || 0;
                         todayEarned = data.todayEarned || 0;
                     }
-                    balance = data.balance || 0;
                 } else {
+                    balance = 0;
+                    adsWatched = 0;
+                    todayEarned = 0;
                     await fetch(`${DB_URL}/users/${user.id}.json`, {
                         method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             name: user.first_name,
                             balance: 0,
@@ -353,10 +358,13 @@
             let remaining = totalAds - adsWatched;
             document.getElementById('ads-remaining').innerText = remaining > 0 ? remaining : 0;
 
+            const btn = document.getElementById('ad-btn');
             if (adsWatched >= totalAds) {
-                const btn = document.getElementById('ad-btn');
                 btn.innerText = "আজকের বিজ্ঞাপন দেখা শেষ!";
                 btn.disabled = true;
+            } else {
+                btn.innerText = `▶ বিজ্ঞাপন শুরু করুন (${remaining > 0 ? remaining : 0} টি বাকি)`;
+                btn.disabled = false;
             }
         }
 
@@ -373,7 +381,6 @@
             if (typeof show_11962597 === 'function') {
                 show_11962597().then(async () => {
                     await giveRewardAndSync("MonetagSDK");
-                    btn.disabled = false;
                 }).catch(async (err) => {
                     console.log("Monetag SDK error/closed", err);
                     btn.disabled = false;
@@ -395,17 +402,22 @@
             updateUI();
 
             const currentDate = new Date().toISOString().split('T')[0];
-            await fetch(`${DB_URL}/users/${user.id}.json`, {
-                method: 'PATCH',
-                body: JSON.stringify({
-                    name: user.first_name,
-                    balance: balance,
-                    adsWatched: adsWatched,
-                    todayEarned: todayEarned,
-                    lastResetDate: currentDate,
-                    lastAdSource: sourceType
-                })
-            });
+            try {
+                await fetch(`${DB_URL}/users/${user.id}.json`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: user.first_name,
+                        balance: balance,
+                        adsWatched: adsWatched,
+                        todayEarned: todayEarned,
+                        lastResetDate: currentDate,
+                        lastAdSource: sourceType
+                    })
+                });
+            } catch(e) {
+                console.log("Sync error", e);
+            }
         }
 
         function shareReferral() {
@@ -446,12 +458,12 @@
                 return;
             }
 
-            // ব্যালেন্স কেটে নেওয়া এবং ফায়ারবেসে উইথড্র সেভ করা
             balance -= amount;
             updateUI();
 
             await fetch(`${DB_URL}/withdraws.json`, {
                 method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     userId: user.id,
                     name: user.first_name,
@@ -465,6 +477,7 @@
 
             await fetch(`${DB_URL}/users/${user.id}.json`, {
                 method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ balance: balance })
             });
 
