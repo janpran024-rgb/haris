@@ -15,7 +15,8 @@
             background-color: #0b1320; 
             color: #fff; 
             margin: 0; 
-            padding: 15px; 
+            padding: 15px;
+            padding-bottom: 70px; /* নেভিগেশন বারের জন্য জায়গা */
         }
         
         /* Profile Header */
@@ -79,6 +80,12 @@
             font-weight: bold; 
             cursor: pointer; 
             box-sizing: border-box;
+            transition: 0.2s;
+        }
+        .btn-start:disabled {
+            background: #cbd5e1;
+            color: #64748b;
+            cursor: not-allowed;
         }
 
         /* Refer Card */
@@ -100,6 +107,37 @@
             font-size: 15px; 
             font-weight: bold; 
             cursor: pointer; 
+        }
+
+        /* Bottom Navigation Bar */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #131c2e;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid #1f293d;
+            box-sizing: border-box;
+            z-index: 1000;
+        }
+        .nav-item {
+            text-align: center;
+            color: #8a99ad;
+            font-size: 11px;
+            cursor: pointer;
+            text-decoration: none;
+            background: none;
+            border: none;
+        }
+        .nav-item.active {
+            color: #00aaff;
+        }
+        .nav-item div {
+            font-size: 18px;
+            margin-bottom: 2px;
         }
     </style>
 </head>
@@ -130,7 +168,7 @@
             </div>
         </div>
 
-        <button class="btn-start" onclick="watchAd()">▶ বিজ্ঞাপন শুরু করুন (<span id="ads-remaining">50</span> টি বাকি)</button>
+        <button class="btn-start" id="ad-btn" onclick="watchAd()">▶ বিজ্ঞাপন শুরু করুন (<span id="ads-remaining">50</span> টি বাকি)</button>
     </div>
 
     <!-- Referral Section -->
@@ -138,6 +176,25 @@
         <div class="refer-title">🎁 রেফারেল বোনাস</div>
         <div class="refer-subtitle">বন্ধুদের ইনভাইট করুন এবং প্রতি রেফারে ৳১০০ পান!</div>
         <button class="btn-refer" onclick="shareReferral()">🔗 রেফার লিংক শেয়ার করুন</button>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="nav-bar">
+        <button class="nav-item active">
+            <div>🏠</div>হোম
+        </button>
+        <button class="nav-item" onclick="alert('আয় করার জন্য উপরের বিজ্ঞাপন শুরু করুন বাটনে ক্লিক করুন।')">
+            <div>💰</div>আয় করুন
+        </button>
+        <button class="nav-item" onclick="alert('সাপোর্টের জন্য আমাদের টেলিগ্রাম চ্যানেলে যোগাযোগ করুন।')">
+            <div>❓</div>সাপোর্ট
+        </button>
+        <button class="nav-item" onclick="alert('উইথড্র অপশন শীঘ্রই আসছে!')">
+            <div>💳</div>উইথড্র
+        </button>
+        <button class="nav-item" onclick="alert('প্রফাইল ফিচারটি আপডেট করা হচ্ছে।')">
+            <div>👤</div>প্রফাইল
+        </button>
     </div>
 
     <script>
@@ -160,13 +217,45 @@
 
         async function loadUserData() {
             try {
+                // আজকের তারিখ বের করা (ডেইলি রিসেটের জন্য)
+                const currentDate = new Date().toISOString().split('T')[0];
+
                 // Fetch User Data
                 const res = await fetch(`${DB_URL}/users/${user.id}.json`);
                 const data = await res.json();
+                
                 if(data) {
+                    let lastReset = data.lastResetDate || "";
+                    
+                    // যদি দিন পরিবর্তন হয়ে থাকে তবে আজকের অ্যাড কাউন্ট রিসেট হবে
+                    if (lastReset !== currentDate) {
+                        adsWatched = 0;
+                        todayEarned = 0;
+                        await fetch(`${DB_URL}/users/${user.id}.json`, {
+                            method: 'PATCH',
+                            body: JSON.stringify({
+                                adsWatched: 0,
+                                todayEarned: 0,
+                                lastResetDate: currentDate
+                            })
+                        });
+                    } else {
+                        adsWatched = data.adsWatched || 0;
+                        todayEarned = data.todayEarned || 0;
+                    }
                     balance = data.balance || 0;
-                    adsWatched = data.adsWatched || 0;
-                    todayEarned = data.todayEarned || 0;
+                } else {
+                    // নতুন ইউজার হলে ইনিশিয়াল ডাটা সেভ করা
+                    await fetch(`${DB_URL}/users/${user.id}.json`, {
+                        method: 'PATCH',
+                        body: JSON.stringify({
+                            name: user.first_name,
+                            balance: 0,
+                            adsWatched: 0,
+                            todayEarned: 0,
+                            lastResetDate: currentDate
+                        })
+                    });
                 }
 
                 // Fetch Dynamic Settings from Firebase
@@ -180,7 +269,9 @@
                     else if(settingsData.ads !== undefined) totalAds = Number(settingsData.ads);
                     else if(settingsData.total_ads !== undefined) totalAds = Number(settingsData.total_ads);
                 }
-            } catch(e) {}
+            } catch(e) {
+                console.log("Error loading data", e);
+            }
             updateUI();
         }
 
@@ -189,8 +280,15 @@
             document.getElementById('ads-watched').innerText = adsWatched;
             document.getElementById('today-earned').innerText = todayEarned.toFixed(2);
             document.getElementById('ad-reward-display').innerText = adReward.toFixed(2);
+            
             let remaining = totalAds - adsWatched;
             document.getElementById('ads-remaining').innerText = remaining > 0 ? remaining : 0;
+
+            if (adsWatched >= totalAds) {
+                const btn = document.getElementById('ad-btn');
+                btn.innerText = "আজকের বিজ্ঞাপন দেখা শেষ!";
+                btn.disabled = true;
+            }
         }
 
         // Monetag Telegram SDK Ad Function
@@ -200,15 +298,24 @@
                 return;
             }
 
+            const btn = document.getElementById('ad-btn');
+            btn.disabled = true;
+            btn.innerText = "বিজ্ঞাপন লোড হচ্ছে...";
+
             if (typeof show_11962597 === 'function') {
                 show_11962597().then(async () => {
                     await giveRewardAndSync("MonetagSDK");
+                    btn.disabled = false;
                 }).catch(async (err) => {
                     console.log("Monetag SDK error/closed", err);
-                    alert("এই মুহূর্তে কোনো বিজ্ঞাপন উপলব্ধ নেই। একটু পরে আবার চেষ্টা করুন!");
+                    btn.disabled = false;
+                    updateUI();
+                    alert("এই মুহূর্তে কোনো বিজ্ঞাপন উপলব্ধ নেই অথবা কেটে দেওয়া হয়েছে!");
                 });
             } else {
-                alert("এই মুহূর্তে কোনো বিজ্ঞাপন উপলব্ধ নেই। একটু পরে আবার চেষ্টা করুন!");
+                btn.disabled = false;
+                updateUI();
+                alert("বিজ্ঞাপন লোড হতে সমস্যা হচ্ছে। একটু পরে আবার চেষ্টা করুন!");
             }
         }
 
@@ -219,6 +326,7 @@
 
             updateUI();
 
+            const currentDate = new Date().toISOString().split('T')[0];
             await fetch(`${DB_URL}/users/${user.id}.json`, {
                 method: 'PATCH',
                 body: JSON.stringify({
@@ -226,6 +334,7 @@
                     balance: balance,
                     adsWatched: adsWatched,
                     todayEarned: todayEarned,
+                    lastResetDate: currentDate,
                     lastAdSource: sourceType
                 })
             });
@@ -241,3 +350,4 @@
     </script>
 </body>
 </html>
+
