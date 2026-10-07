@@ -3,307 +3,476 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task-to-Earn Mini App</title>
+    <title>hafi</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <!-- Monetag Telegram SDK -->
+    <script src='//libtl.com/sdk.js' data-zone='11962597' data-sdk='show_11962597'></script>
+
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #0b141a;
-            color: #ffffff;
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            justify-content: space-between;
-        }
-        .container {
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #0b1320; 
+            color: #fff; 
+            margin: 0; 
             padding: 15px;
-            overflow-y: auto;
-            flex: 1;
+            padding-bottom: 70px; 
         }
-        .card {
-            background: linear-gradient(135deg, #0088cc, #005580);
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        
+        /* Profile Header */
+        .user-card { 
+            background: #131c2e; 
+            border-radius: 12px; 
+            padding: 12px 15px; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            margin-bottom: 15px; 
         }
-        .profile-box {
-            display: flex;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 10px;
-            border-radius: 10px;
-            margin-bottom: 15px;
+        .avatar { 
+            width: 42px; 
+            height: 42px; 
+            background: #2b5278; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 18px; 
+            font-weight: bold; 
         }
-        .avatar {
-            width: 45px;
-            height: 45px;
-            background: #ffffff;
-            color: #0088cc;
-            font-weight: bold;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            margin-right: 12px;
+        .user-details .name { font-weight: bold; font-size: 15px; }
+        .user-details .balance { color: #2abee8; font-size: 13px; margin-top: 2px; }
+
+        /* Main Reward Box */
+        .reward-card { 
+            background: linear-gradient(135deg, #0088cc, #00aaff); 
+            border-radius: 16px; 
+            padding: 20px 15px; 
+            text-align: center; 
+            margin-bottom: 15px; 
+            box-shadow: 0 4px 15px rgba(0, 136, 204, 0.3);
         }
-        .user-info h3 {
-            margin: 0;
-            font-size: 16px;
+        .reward-title { font-size: 13px; opacity: 0.9; }
+        .reward-amount { font-size: 32px; font-weight: bold; margin: 8px 0; }
+        
+        .stats-row { 
+            display: flex; 
+            gap: 10px; 
+            margin: 15px 0 20px 0; 
         }
-        .user-info p {
-            margin: 3px 0 0;
-            font-size: 14px;
-            color: #d1d5db;
+        .stat-box { 
+            flex: 1; 
+            background: rgba(255, 255, 255, 0.15); 
+            border-radius: 8px; 
+            padding: 10px 5px; 
         }
-        .stats-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
+        .stat-label { font-size: 11px; opacity: 0.8; }
+        .stat-value { font-size: 16px; font-weight: bold; margin-top: 4px; }
+
+        .btn-start { 
+            width: 100%; 
+            padding: 14px; 
+            background: #ffffff; 
+            color: #0088cc; 
+            border: none; 
+            border-radius: 10px; 
+            font-size: 16px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            box-sizing: border-box;
+            transition: 0.2s;
         }
-        .stat-box {
-            background: rgba(255, 255, 255, 0.15);
-            padding: 10px;
-            border-radius: 8px;
-            width: 48%;
-            text-align: center;
+        .btn-start:disabled {
+            background: #cbd5e1;
+            color: #64748b;
+            cursor: not-allowed;
         }
-        .stat-box p {
-            margin: 0;
-            font-size: 12px;
-            color: #e2e8f0;
+
+        /* Refer Card */
+        .refer-card { 
+            background: #131c2e; 
+            border-radius: 16px; 
+            padding: 18px 15px; 
+            margin-bottom: 15px; 
         }
-        .stat-box h4 {
-            margin: 5px 0 0;
-            font-size: 16px;
+        .refer-title { font-size: 15px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        .refer-subtitle { font-size: 12px; color: #8a99ad; margin: 6px 0 15px 0; }
+        .btn-refer { 
+            width: 100%; 
+            padding: 12px; 
+            background: #00a859; 
+            color: #fff; 
+            border: none; 
+            border-radius: 10px; 
+            font-size: 15px; 
+            font-weight: bold; 
+            cursor: pointer; 
         }
-        .action-btn {
-            background: #ffffff;
-            color: #0088cc;
-            border: none;
+
+        /* Bottom Navigation Bar */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
             width: 100%;
-            padding: 12px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 8px;
+            background: #131c2e;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid #1f293d;
+            box-sizing: border-box;
+            z-index: 1000;
+        }
+        .nav-item {
+            text-align: center;
+            color: #8a99ad;
+            font-size: 11px;
             cursor: pointer;
-            text-align: center;
-        }
-        .ref-card {
-            background: #111b21;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 15px;
-            text-align: center;
-        }
-        .ref-btn {
-            background: #22c55e;
-            color: #ffffff;
+            text-decoration: none;
+            background: none;
             border: none;
+        }
+        .nav-item.active {
+            color: #00aaff;
+        }
+        .nav-item div {
+            font-size: 18px;
+            margin-bottom: 2px;
+        }
+
+        /* Modal Popup Design */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            padding: 12px;
-            font-size: 15px;
-            font-weight: bold;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .modal-content {
+            background: #131c2e;
+            padding: 20px;
+            border-radius: 16px;
+            width: 85%;
+            max-width: 320px;
+            text-align: center;
+            border: 1px solid #1f293d;
+        }
+        .modal-content h3 { margin-top: 0; color: #00aaff; }
+        .modal-content input, .modal-content select {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            background: #0b1320;
+            border: 1px solid #2b5278;
+            color: #fff;
             border-radius: 8px;
+            box-sizing: border-box;
+        }
+        .modal-btn {
+            background: #00aaff;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            border-radius: 8px;
+            font-weight: bold;
             cursor: pointer;
             margin-top: 10px;
         }
-        .nav-bar {
-            display: flex;
-            background: #111b21;
-            padding: 10px 0;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .nav-item {
-            flex: 1;
-            text-align: center;
-            color: #9ca3af;
-            font-size: 12px;
-            cursor: pointer;
-            text-decoration: none;
-        }
-        .nav-item.active {
-            color: #38bdf8;
+        .modal-close {
+            background: #ef4444;
+            margin-top: 5px;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <!-- Profile Section -->
-        <div class="profile-box">
-            <div class="avatar" id="avatar">A</div>
-            <div class="user-info">
-                <h3 id="user-name">Loading...</h3>
-                <p id="user-balance">৳0.00</p>
+    <!-- User Profile Header -->
+    <div class="user-card">
+        <div class="avatar" id="avatar">A</div>
+        <div class="user-details">
+            <div class="name" id="user-name">Loading...</div>
+            <div class="balance">৳ <span id="user-balance">0.00</span></div>
+        </div>
+    </div>
+
+    <!-- Main Ad Task Section -->
+    <div class="reward-card">
+        <div class="reward-title">প্রতি বিজ্ঞাপনে নিশ্চিত আয়</div>
+        <div class="reward-amount">৳ <span id="ad-reward-display">20.00</span></div>
+        
+        <div class="stats-row">
+            <div class="stat-box">
+                <div class="stat-label">আজকের বিজ্ঞাপন দেখা</div>
+                <div class="stat-value"><span id="ads-watched">0</span> টি</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">আজকের বিজ্ঞাপন আয়</div>
+                <div class="stat-value">৳ <span id="today-earned">0.00</span></div>
             </div>
         </div>
 
-        <!-- Main Task Card -->
-        <div class="card">
-            <div style="text-align: center; margin-bottom: 12px;">
-                <p style="margin: 0; font-size: 13px; color: #e2e8f0;">Proti biggapone nischito ay</p>
-                <h2 style="margin: 5px 0 0; font-size: 26px;" id="reward-display">৳2.00</h2>
-            </div>
-            
-            <div class="stats-row">
-                <div class="stat-box">
-                    <p>Ajker biggapon dewa</p>
-                    <h4 id="watched-display">0 ti</h4>
-                </div>
-                <div class="stat-box">
-                    <p>Ajker biggapon ay</p>
-                    <h4 id="today-earn-display">৳0.00</h4>
-                </div>
-            </div>
+        <button class="btn-start" id="ad-btn" onclick="watchAd()">▶ বিজ্ঞাপন শুরু করুন (<span id="ads-remaining">50</span> টি বাকি)</button>
+    </div>
 
-            <button class="action-btn" id="watch-btn" onclick="startTask()">⏳ Loading...</button>
-        </div>
-
-        <!-- Referral Card -->
-        <div class="ref-card">
-            <p style="margin: 0; font-size: 14px; font-weight: bold;">🎁 Referal Bonus</p>
-            <p style="margin: 5px 0; font-size: 12px; color: #9ca3af;">Bondhuder invite korun ebong proti refare ৳100 pan!</p>
-            <button class="ref-btn" onclick="shareReferral()">🔗 Refar link shear korun</button>
-        </div>
+    <!-- Referral Section -->
+    <div class="refer-card">
+        <div class="refer-title">🎁 রেফারেল বোনাস</div>
+        <div class="refer-subtitle">বন্ধুদের ইনভাইট করুন এবং প্রতি রেফারে ৳১০০ পান!</div>
+        <button class="btn-refer" onclick="shareReferral()">🔗 রেফার লিংক শেয়ার করুন</button>
     </div>
 
     <!-- Bottom Navigation Bar -->
     <div class="nav-bar">
-        <a href="#" class="nav-item active">🏠<br>Hom</a>
-        <a href="#" class="nav-item">💰<br>Ay korun</a>
-        <a href="#" class="nav-item">❓<br>Saport</a>
-        <a href="#" class="nav-item">💳<br>Uithdrw</a>
-        <a href="#" class="nav-item">👤<br>Profil</a>
+        <button class="nav-item active" onclick="switchTab('home')">
+            <div>🏠</div>হোম
+        </button>
+        <button class="nav-item" onclick="alert('আয় করার জন্য উপরের বিজ্ঞাপন শুরু করুন বাটনে ক্লিক করুন।')">
+            <div>💰</div>আয় করুন
+        </button>
+        <button class="nav-item" onclick="alert('সাপোর্টের জন্য আমাদের টেলিগ্রাম চ্যানেলে যোগাযোগ করুন।')">
+            <div>❓</div>সাপোর্ট
+        </button>
+        <button class="nav-item" onclick="openWithdrawModal()">
+            <div>💳</div>উইথড্র
+        </button>
+        <button class="nav-item" onclick="openProfileModal()">
+            <div>👤</div>প্রফাইল
+        </button>
     </div>
+
+    <!-- Withdraw Modal -->
+    <div class="modal" id="withdrawModal">
+        <div class="modal-content">
+            <h3>💳 উইথড্র রিকোয়েস্ট</h3>
+            <select id="method">
+                <option value="Bkash">বিকাশ (Bkash)</option>
+                <option value="Nagad">নগদ (Nagad)</option>
+                <option value="Recharge">মোবাইল রিচার্জ</option>
+            </select>
+            <input type="text" id="accountNo" placeholder="আপনার নম্বর দিন">
+            <input type="number" id="withdrawAmount" placeholder="টাকার পরিমাণ">
+            <button class="modal-btn" onclick="submitWithdraw()">রিকোয়েস্ট পাঠান</button>
+            <button class="modal-btn modal-close" onclick="closeModals()">বন্ধ করুন</button>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="modal" id="profileModal">
+    <div class="modal-content">
+        <h3>👤 ইউজারের প্রফাইল</h3>
+        <p style="text-align: left; font-size: 13px; margin: 5px 0;">নাম: <span id="p-name" style="color: #00aaff;">-</span></p>
+        <p style="text-align: left; font-size: 13px; margin: 5px 0;">ইউজার আইডি: <span id="p-id" style="color: #00aaff;">-</span></p>
+        <p style="text-align: left; font-size: 13px; margin: 5px 0;">মোট ব্যালেন্স: ৳ <span id="p-balance" style="color: #2abee8;">0.00</span></p>
+        <button class="modal-btn modal-close" onclick="closeModals()">বন্ধ করুন</button>
+    </div>
+</div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
         const DB_URL = "https://hafi-hiba-default-rtdb.firebaseio.com/";
-        const BOT_USERNAME = "Jh58bot";
+        const BOT_USERNAME = "Jh58bot"; 
 
-        const user = tg.initDataUnsafe.user || { id: "123456", first_name: "Test User" };
-        const userId = user.id.toString();
-        const userName = user.first_name || "User";
+        const user = tg.initDataUnsafe.user || { id: "123456", first_name: "ABU SALEH MD HARIS" };
 
-        document.getElementById('user-name').innerText = userName;
-        document.getElementById('avatar').innerText = userName.charAt(0).toUpperCase();
+        document.getElementById('user-name').innerText = user.first_name.toUpperCase();
+        document.getElementById('avatar').innerText = user.first_name.charAt(0).toUpperCase();
 
         let balance = 0;
         let adsWatched = 0;
         let todayEarned = 0;
-        let adReward = 2;
+        let adReward = 20;
         let totalAds = 50;
 
-        async function loadAppData() {
+        async function loadUserData() {
             try {
-                // Settings load
-                const settingsRes = await fetch(`${DB_URL}/settings.json`);
-                const settings = await settingsRes.json();
-                if (settings) {
-                    adReward = settings.ad_reward || 2;
-                    totalAds = settings.total_ads || 50;
-                    document.getElementById('reward-display').innerText = `৳${adReward.toFixed(2)}`;
-                }
-
-                // User data load
-                const userRes = await fetch(`${DB_URL}/users/${userId}.json`);
-                const userData = await userRes.json();
-
-                const today = new Date().toISOString().split('T')[0];
-
-                if (userData) {
-                    balance = userData.balance || 0;
-                    if (userData.last_reset_date === today) {
-                        adsWatched = userData.today_watched_ads || 0;
-                    } else {
+                const currentDate = new Date().toISOString().split('T')[0];
+                const res = await fetch(`${DB_URL}/users/${user.id}.json`);
+                const data = await res.json();
+                
+                if(data) {
+                    let lastReset = data.lastResetDate || "";
+                    if (lastReset !== currentDate) {
                         adsWatched = 0;
-                        await fetch(`${DB_URL}/users/${userId}.json`, {
+                        todayEarned = 0;
+                        await fetch(`${DB_URL}/users/${user.id}.json`, {
                             method: 'PATCH',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ today_watched_ads: 0, last_reset_date: today })
+                            body: JSON.stringify({
+                                adsWatched: 0,
+                                todayEarned: 0,
+                                lastResetDate: currentDate
+                            })
                         });
+                    } else {
+                        adsWatched = data.adsWatched || 0;
+                        todayEarned = data.todayEarned || 0;
                     }
+                    balance = data.balance || 0;
                 } else {
-                    // New user create
-                    balance = 0;
-                    adsWatched = 0;
-                    await fetch(`${DB_URL}/users/${userId}.json`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ name: userName, balance: 0, today_watched_ads: 0, last_reset_date: today })
+                    await fetch(`${DB_URL}/users/${user.id}.json`, {
+                        method: 'PATCH',
+                        body: JSON.stringify({
+                            name: user.first_name,
+                            balance: 0,
+                            adsWatched: 0,
+                            todayEarned: 0,
+                            lastResetDate: currentDate
+                        })
                     });
                 }
 
-                todayEarned = adsWatched * adReward;
-                updateUI();
-            } catch (error) {
-                console.error("Data load error:", error);
-                document.getElementById('watch-btn').innerText = "▶️ Biggapon shuru korun";
+                const settingsRes = await fetch(`${DB_URL}/settings.json`);
+                const settingsData = await settingsRes.json();
+                if(settingsData) {
+                    if(settingsData.adReward !== undefined) adReward = Number(settingsData.adReward);
+                    else if(settingsData.ad_reward !== undefined) adReward = Number(settingsData.ad_reward);
+
+                    if(settingsData.totalAds !== undefined) totalAds = Number(settingsData.totalAds);
+                    else if(settingsData.ads !== undefined) totalAds = Number(settingsData.ads);
+                    else if(settingsData.total_ads !== undefined) totalAds = Number(settingsData.total_ads);
+                }
+            } catch(e) {
+                console.log("Error loading data", e);
             }
+            updateUI();
         }
 
         function updateUI() {
-            document.getElementById('user-balance').innerText = `৳${balance.toFixed(2)}`;
-            document.getElementById('watched-display').innerText = `${adsWatched} ti`;
-            document.getElementById('today-earn-display').innerText = `৳${todayEarned.toFixed(2)}`;
+            document.getElementById('user-balance').innerText = balance.toFixed(2);
+            document.getElementById('ads-watched').innerText = adsWatched;
+            document.getElementById('today-earned').innerText = todayEarned.toFixed(2);
+            document.getElementById('ad-reward-display').innerText = adReward.toFixed(2);
+            
+            let remaining = totalAds - adsWatched;
+            document.getElementById('ads-remaining').innerText = remaining > 0 ? remaining : 0;
 
-            const remaining = totalAds - adsWatched;
-            const btn = document.getElementById('watch-btn');
-            if (remaining > 0) {
-                btn.innerText = `▶️ Biggapon shuru korun (${remaining} ti baki)`;
-                btn.disabled = false;
-            } else {
-                btn.innerText = `❌ Ajker sob biggapon dewa ses`;
+            if (adsWatched >= totalAds) {
+                const btn = document.getElementById('ad-btn');
+                btn.innerText = "আজকের বিজ্ঞাপন দেখা শেষ!";
                 btn.disabled = true;
             }
         }
 
-        async function startTask() {
-            if (adsWatched >= totalAds) return;
+        async function watchAd() {
+            if (adsWatched >= totalAds) {
+                alert("আজকের সব বিজ্ঞাপন দেখা শেষ!");
+                return;
+            }
 
-            const btn = document.getElementById('watch-btn');
-            btn.innerText = "⏳ Biggapon load hocche...";
+            const btn = document.getElementById('ad-btn');
             btn.disabled = true;
+            btn.innerText = "বিজ্ঞাপন লোড হচ্ছে...";
 
-            setTimeout(async () => {
-                adsWatched += 1;
-                balance += adReward;
-                todayEarned = adsWatched * adReward;
-
-                const today = new Date().toISOString().split('T')[0];
-                try {
-                    await fetch(`${DB_URL}/users/${userId}.json`, {
-                        method: 'PATCH',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            balance: balance,
-                            today_watched_ads: adsWatched,
-                            last_reset_date: today,
-                            name: userName
-                        })
-                    });
-                } catch (e) {
-                    console.error("Update error", e);
-                }
-
+            if (typeof show_11962597 === 'function') {
+                show_11962597().then(async () => {
+                    await giveRewardAndSync("MonetagSDK");
+                    btn.disabled = false;
+                }).catch(async (err) => {
+                    console.log("Monetag SDK error/closed", err);
+                    btn.disabled = false;
+                    updateUI();
+                    alert("এই মুহূর্তে কোনো বিজ্ঞাপন উপলব্ধ নেই অথবা কেটে দেওয়া হয়েছে!");
+                });
+            } else {
+                btn.disabled = false;
                 updateUI();
-            }, 2000);
+                alert("বিজ্ঞাপন লোড হতে সমস্যা হচ্ছে। একটু পরে আবার চেষ্টা করুন!");
+            }
+        }
+
+        async function giveRewardAndSync(sourceType) {
+            balance += adReward;
+            todayEarned += adReward;
+            adsWatched += 1;
+
+            updateUI();
+
+            const currentDate = new Date().toISOString().split('T')[0];
+            await fetch(`${DB_URL}/users/${user.id}.json`, {
+                method: 'PATCH',
+                body: JSON.stringify({
+                    name: user.first_name,
+                    balance: balance,
+                    adsWatched: adsWatched,
+                    todayEarned: todayEarned,
+                    lastResetDate: currentDate,
+                    lastAdSource: sourceType
+                })
+            });
         }
 
         function shareReferral() {
-            const refLink = `https://t.me/${BOT_USERNAME}?start=${userId}`;
-            const text = `Amar sathe Task-to-Earn app-e kaj kore taka ay korun!\nLink: ${refLink}`;
-            const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(text)}`;
-            window.open(shareUrl, '_blank');
+            const refLink = `https://t.me/${BOT_USERNAME}?start=${user.id}`;
+            const shareText = `আমার সাথে Task-to-Earn অ্যাপে কাজ করে টাকা আয় করুন! লিংক: ${refLink}`;
+            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(shareText)}`);
         }
 
-        loadAppData();
+        // Modal Controls
+        function openWithdrawModal() {
+            document.getElementById('withdrawModal').style.display = 'flex';
+        }
+
+        function openProfileModal() {
+            document.getElementById('p-name').innerText = user.first_name;
+            document.getElementById('p-id').innerText = user.id;
+            document.getElementById('p-balance').innerText = balance.toFixed(2);
+            document.getElementById('profileModal').style.display = 'flex';
+        }
+
+        function closeModals() {
+            document.getElementById('withdrawModal').style.display = 'none';
+            document.getElementById('profileModal').style.display = 'none';
+        }
+
+        async function submitWithdraw() {
+            const method = document.getElementById('method').value;
+            const accountNo = document.getElementById('accountNo').value;
+            const amount = Number(document.getElementById('withdrawAmount').value);
+
+            if (!accountNo || !amount) {
+                alert("দয়া করে সমস্ত তথ্য পূরণ করুন!");
+                return;
+            }
+
+            if (amount > balance) {
+                alert("আপনার অ্যাকাউন্টে পর্যাপ্ত পরিমাণ ব্যালেন্স নেই!");
+                return;
+            }
+
+            // ব্যালেন্স কেটে নেওয়া এবং ফায়ারবেসে উইথড্র সেভ করা
+            balance -= amount;
+            updateUI();
+
+            await fetch(`${DB_URL}/withdraws.json`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    userId: user.id,
+                    name: user.first_name,
+                    method: method,
+                    accountNo: accountNo,
+                    amount: amount,
+                    status: "Pending",
+                    timestamp: new Date().toISOString()
+                })
+            });
+
+            await fetch(`${DB_URL}/users/${user.id}.json`, {
+                method: 'PATCH',
+                body: JSON.stringify({ balance: balance })
+            });
+
+            alert("উইথড্র রিকোয়েস্ট সফলভাবে জমা হয়েছে!");
+            closeModals();
+        }
+
+        loadUserData();
     </script>
 </body>
 </html>
